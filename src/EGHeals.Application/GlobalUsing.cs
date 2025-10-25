@@ -1,0 +1,14 @@
+﻿global using EGHeals.Application.Extensions.Validators;
+global using BuildingBlocks.CQRS;
+global using FluentValidation;
+global using BuildingBlocks.DataAccessAbstraction.UnitOfWork;
+global using BuildingBlocks.DataAccessAbstraction.Repository;
+global using EGHeals.Domain.Models;
+global using BuildingBlocks.Exceptions;
+global using BuildingBlocks.Pagination;
+global using BuildingBlocks.Responses;
+global using BuildingBlocks.Domain.ValueObjects;
+global using BuildingBlocks.DataAccessAbstraction.Models;
+global using BuildingBlocks.DataAccessAbstraction.Queries;
+global using EGHeals.Domain.Enums;
+global using EGHeals.Domain.ValueObjects;

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks.DataAccessAbstraction\BuildingBlocks.DataAccessAbstraction.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
+    <ProjectReference Include="..\EGHeals.Domain\EGHeals.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Users\Commands\RegisterAdmin\" />
+    <Folder Include="Features\Users\Commands\RegisterPatient\" />
+    <Folder Include="Features\Users\Commands\RegisterSubUser\" />
+  </ItemGroup>
+
+</Project>
