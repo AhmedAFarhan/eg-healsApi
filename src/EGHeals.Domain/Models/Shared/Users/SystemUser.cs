@@ -14,7 +14,7 @@ namespace EGHeals.Domain.Models.Shared.Users
         public string LastName { get; set; } = default!;       
         public string UserName { get; private set; } = default!;
         public string NormalizedUserName { get; private set; } = default!;
-        public string? Email { get; private set; } = default!;
+        public string Email { get; private set; } = default!;
         public string? NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; private set; } = false;
         public string? Mobile { get; private set; } = default!;
@@ -28,7 +28,7 @@ namespace EGHeals.Domain.Models.Shared.Users
                                         string firstName,
                                         string lastName,
                                         string? email,
-                                        string? mobile,
+                                        string? mobile = null,
                                         bool isActive = true)
         {
             //Domain model validation
@@ -39,10 +39,10 @@ namespace EGHeals.Domain.Models.Shared.Users
                 Id = id,
                 FirstName = firstName,
                 LastName = lastName,
-                UserName = !string.IsNullOrEmpty(email) ? email.ToUpper() : mobile,
-                NormalizedUserName = !string.IsNullOrEmpty(email) ? email.ToUpper() : mobile,
+                UserName = !string.IsNullOrEmpty(email) ? email.ToUpperInvariant() : mobile,
+                NormalizedUserName = !string.IsNullOrEmpty(email) ? email.ToUpperInvariant() : mobile,
                 Email = email,
-                NormalizedEmail = email?.ToUpper(),
+                NormalizedEmail = email?.ToUpperInvariant(),
                 Mobile = mobile,
                 IsActive = isActive
             };
@@ -52,17 +52,17 @@ namespace EGHeals.Domain.Models.Shared.Users
         public void Update(string firstName,
                            string lastName,
                            string? email,
-                           string? mobile)
+                           string? mobile = null)
         {
             //Domain model validation
             Validation(firstName, lastName, email, mobile);
 
             FirstName = firstName;
             LastName = lastName;
-            UserName = !string.IsNullOrEmpty(email) ? email.ToUpper() : mobile;
-            NormalizedUserName = !string.IsNullOrEmpty(email) ? email.ToUpper() : mobile;
+            UserName = !string.IsNullOrEmpty(email) ? email.ToUpperInvariant() : mobile;
+            NormalizedUserName = !string.IsNullOrEmpty(email) ? email.ToUpperInvariant() : mobile;
             Email = email;
-            NormalizedEmail = email?.ToUpper();
+            NormalizedEmail = email?.ToUpperInvariant();
             Mobile = mobile;
         }
 

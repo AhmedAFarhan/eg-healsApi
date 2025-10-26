@@ -9,17 +9,20 @@ namespace BuildingBlocks.DataAccessAbstraction.Repository
         /************************************** Query methods ***************************************/
 
         Task<IEnumerable<T>> GetAllAsync(QueryOptions<T> options,
+                                         bool includeDeleted = false,
+                                         bool includeOwnership = false,
                                          Expression<Func<T, object>>[]? includes = null,
-                                         bool ignoreOwnership = false,
                                          CancellationToken cancellationToken = default);
 
         Task<T?> GetByIdAsync(TId id,
+                              bool includeDeleted = false,
+                              bool includeOwnership = false,
                               Expression<Func<T, object>>[]? includes = null,
-                              bool ignoreOwnership = false,
                               CancellationToken cancellationToken = default);
 
         Task<long> GetCountAsync(QueryFilters<T> filters,
-                                 bool ignoreOwnership = false,
+                                 bool includeDeleted = false,
+                                 bool includeOwnership = false,
                                  CancellationToken cancellationToken = default);
 
         /************************************** Command methods ***************************************/

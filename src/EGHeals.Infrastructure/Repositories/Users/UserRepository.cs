@@ -11,9 +11,19 @@ namespace EGHeals.Infrastructure.Repositories.Users
 
         public async Task<bool> IsUserExistAsync(string username, CancellationToken cancellationToken = default)
         {
-            var user = await _dbSet.FirstOrDefaultAsync(u => u.UserName == username && u.IsActive && !u.IsDeleted);
+            return await _dbSet.AnyAsync(u => u.NormalizedUserName == username.ToUpperInvariant() && u.IsActive && !u.IsDeleted, cancellationToken);
+        }
 
-            return user is not null;
+        public async Task<bool> IsEmailExistAsync(string email, Guid? excludeUserId = null, CancellationToken cancellationToken = default)
+        {
+            var excludedId = excludeUserId.HasValue ? SystemUserId.Of(excludeUserId.Value) : null;
+            return await _dbSet.AnyAsync(u => u.NormalizedEmail == email.ToUpperInvariant() && (excludedId == null || u.Id != excludedId), cancellationToken);
+        }
+
+        public async Task<bool> IsMobileExistAsync(string mobile, Guid? excludeUserId = null, CancellationToken cancellationToken = default)
+        {
+            var excludedId = excludeUserId.HasValue ? SystemUserId.Of(excludeUserId.Value) : null;
+            return await _dbSet.AnyAsync(u => u.Mobile == mobile && (excludedId == null || u.Id != excludedId), cancellationToken);
         }
 
         public async Task<SystemUser?> GetUserRolesAsync(string username, CancellationToken cancellationToken = default)
@@ -37,7 +47,7 @@ namespace EGHeals.Infrastructure.Repositories.Users
             var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted && x.IsActive);
 
             //Apply Ownership
-            query = await ApplyOwnership(query, ignoreOwnership);
+            query = await IncludeOwnership(query, ignoreOwnership);
 
             query = query.Include(x => x.UserRoles)
                             .ThenInclude(x => x.Role);
@@ -67,7 +77,7 @@ namespace EGHeals.Infrastructure.Repositories.Users
             var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted /*&& x.UserType == UserType.SUBUSER*/);
 
             //Apply Ownership
-            query = await ApplyOwnership(query, ignoreOwnership);
+            query = await IncludeOwnership(query, ignoreOwnership);
 
             // Apply filtering
             var filterExpression = filters.BuildFilterExpression();
@@ -87,7 +97,7 @@ namespace EGHeals.Infrastructure.Repositories.Users
             var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted /*&& x.UserType == UserType.SUBUSER*/);
 
             //Apply Ownership
-            query = await ApplyOwnership(query, ignoreOwnership);
+            query = await IncludeOwnership(query, ignoreOwnership);
 
             return await _dbSet.AsQueryable().AsNoTracking()
                                              .AsSplitQuery().

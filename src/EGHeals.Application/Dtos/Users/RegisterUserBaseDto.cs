@@ -1,5 +1,5 @@
 ﻿
 namespace EGHeals.Application.Dtos.Users
 {
-    public record RegisterUserBaseDto(string FirstName, string LastName, string Username, string? Email, string? Mobile, string Password);
+    public record RegisterUserBaseDto(string FirstName, string LastName, string Email, string Password);
 }

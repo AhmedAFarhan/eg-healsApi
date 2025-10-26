@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Dtos\Users\Responses\" />
     <Folder Include="Features\Users\Commands\RegisterAdmin\" />
     <Folder Include="Features\Users\Commands\RegisterPatient\" />
-    <Folder Include="Features\Users\Commands\RegisterSubUser\" />
   </ItemGroup>
 
 </Project>

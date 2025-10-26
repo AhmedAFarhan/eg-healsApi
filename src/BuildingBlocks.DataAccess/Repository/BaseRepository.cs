@@ -17,18 +17,22 @@ namespace BuildingBlocks.DataAccess.Repository
         /************************************** Query methods ***************************************/
 
         public async Task<IEnumerable<T>> GetAllAsync(QueryOptions<T> options,
+                                                      bool includeDeleted = false,
+                                                      bool includeOwnership = false,
                                                       Expression<Func<T, object>>[]? includes = null,
-                                                      bool ignoreOwnership = false,
                                                       CancellationToken cancellationToken = default)
         {
             //Starting query
-            var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted);
+            var query = _dbSet.AsQueryable();
 
             //Apply includes
             query = ApplyIncludes(query, includes);
 
-            //Apply Ownership
-            query = await ApplyOwnership(query, ignoreOwnership);
+            //Included deleted entities
+            query = await IncludeDeletedEntities(query, includeDeleted);
+
+            //Include Ownership
+            query = await IncludeOwnership(query, includeOwnership);
 
             // Apply filtering
             var filterExpression = options.QueryFilters.BuildFilterExpression();
@@ -46,14 +50,19 @@ namespace BuildingBlocks.DataAccess.Repository
             return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
         public async Task<T?> GetByIdAsync(TId id,
+                                           bool includeDeleted = false,
+                                           bool includeOwnership = false,
                                            Expression<Func<T, object>>[]? includes = null,
-                                           bool ignoreOwnership = false,
                                            CancellationToken cancellationToken = default)
         {
-            IQueryable<T> query = _dbSet;
+            //Starting query
+            var query = _dbSet.AsQueryable();
+
+            //Included deleted entities
+            query = await IncludeDeletedEntities(query, includeDeleted);
 
             //Apply Ownership
-            query = await ApplyOwnership(query, ignoreOwnership);
+            query = await IncludeOwnership(query, includeOwnership);
 
             //Apply Includes
             query = ApplyIncludes(query, includes);
@@ -62,14 +71,18 @@ namespace BuildingBlocks.DataAccess.Repository
         }
 
         public async Task<long> GetCountAsync(QueryFilters<T> filters,
-                                              bool ignoreOwnership = false,
+                                              bool includeDeleted = false,
+                                              bool includeOwnership = false,
                                               CancellationToken cancellationToken = default)
         {
-            //Starting query
-            var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted);
+            ///Starting query
+            var query = _dbSet.AsQueryable();
+
+            //Included deleted entities
+            query = await IncludeDeletedEntities(query, includeDeleted);
 
             //Apply Ownership
-            query = await ApplyOwnership(query, ignoreOwnership);
+            query = await IncludeOwnership(query, includeOwnership);
 
             // Apply filtering
             var filterExpression = filters.BuildFilterExpression();
@@ -110,10 +123,19 @@ namespace BuildingBlocks.DataAccess.Repository
 
 
         /************************************** Helper methods ***************************************/
-
-        protected async Task<IQueryable<T>> ApplyOwnership(IQueryable<T> query, bool ignoreOwnership = false)
+        protected async Task<IQueryable<T>> IncludeDeletedEntities(IQueryable<T> query, bool includeDeleted = false)
         {
-            if (!ignoreOwnership && typeof(IEntity).IsAssignableFrom(typeof(T)))
+            if (includeDeleted)
+            {
+                query = query.Where(x => x.IsDeleted == includeDeleted);
+            }
+
+            return query;
+        }
+
+        protected async Task<IQueryable<T>> IncludeOwnership(IQueryable<T> query, bool includeOwnership = false)
+        {
+            if (includeOwnership && typeof(IEntity).IsAssignableFrom(typeof(T)))
             {
                 var ownedBy = userContext.OwnershipId;
                 query = query.Where(x => ((IEntity)x).OwnershipId == SystemUserId.Of(ownedBy.Value));
@@ -121,7 +143,7 @@ namespace BuildingBlocks.DataAccess.Repository
             return query;
         }
 
-        private IQueryable<T> ApplyIncludes(IQueryable<T> query, Expression<Func<T, object>>[]? includes)
+        protected IQueryable<T> ApplyIncludes(IQueryable<T> query, Expression<Func<T, object>>[]? includes)
         {
             if (includes != null)
             {

@@ -8,6 +8,10 @@ namespace EGHeals.Application.Contracts.Users
         {
             Task<bool> IsUserExistAsync(string username, CancellationToken cancellationToken = default);
 
+            Task<bool> IsEmailExistAsync(string email, Guid? excludeUserId = null, CancellationToken cancellationToken = default);
+
+            Task<bool> IsMobileExistAsync(string mobile, Guid? excludeUserId = null, CancellationToken cancellationToken = default);
+
             Task<SystemUser?> GetUserRolesAsync(string username, CancellationToken cancellationToken = default);
 
             Task<IEnumerable<SystemUser>> GetSubUsersAsync(QueryOptions<SystemUser> options,
@@ -15,8 +19,8 @@ namespace EGHeals.Application.Contracts.Users
                                                            CancellationToken cancellationToken = default);
 
             Task<long> GetSubUsersCountAsync(QueryFilters<SystemUser> filters,
-                                                                     bool ignoreOwnership = false,
-                                                                     CancellationToken cancellationToken = default);
+                                             bool ignoreOwnership = false,
+                                             CancellationToken cancellationToken = default);
 
             Task<SystemUser?> GetSubUserRolesAsync(Guid userId,
                                                    bool ignoreOwnership = false,

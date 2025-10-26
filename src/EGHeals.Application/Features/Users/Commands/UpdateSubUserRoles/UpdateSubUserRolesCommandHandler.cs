@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EGHeals.Application.Features.Users.Commands.Register
+namespace EGHeals.Application.Features.Users.Commands.UpdateSubUserRoles
 {
-    internal class RegisterUserCommandHandler
+    internal class UpdateSubUserRolesCommandHandler
     {
     }
 }
