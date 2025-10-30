@@ -1,12 +1,13 @@
 ﻿using EGHeals.Domain.Models.Shared.Users;
 using EGHeals.Domain.ValueObjects.Shared.Users;
 using EGHeals.Infrastructure.Data;
-using EGHeals.Infrastructure.Identity;
+using EGHeals.Infrastructure.Extensions;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 
 namespace EGHeals.Infrastructure.Helpers
 {
-    public class DataBaseSetup(ApplicationDbContext dbContext, ApplicationIdentityDbContext identityDbContext, UserManager<ApplicationUser> userManager)
+    public class DataBaseSetup(ApplicationIdentityDbContext dbContext, UserManager<AppUser> userManager)
     {
         public async Task SetupAsync()
         {
@@ -25,9 +26,6 @@ namespace EGHeals.Infrastructure.Helpers
             // Apply migrations
             await dbContext.Database.MigrateAsync();
 
-            // Apply identity migrations
-            await identityDbContext.Database.MigrateAsync();
-
             // Seed data if database is empty
             var existRoles = await dbContext.Roles.AnyAsync();
 
@@ -36,6 +34,12 @@ namespace EGHeals.Infrastructure.Helpers
                 dbContext.IsSeeding = true;
 
                 /******************************* Defined Permissions *********************************/
+
+                var superAdminPermissionId = PermissionId.Of(Guid.NewGuid());
+                var superAdminPermission = Permission.Create(superAdminPermissionId, "Super Admin Permission");
+
+                var radiologyCenterAdminPermissionId = PermissionId.Of(Guid.NewGuid());
+                var radiologyCenterAdminPermission = Permission.Create(radiologyCenterAdminPermissionId, "Radiology Center Admin Permission");
 
                 var permissionId_1 = PermissionId.Of(Guid.NewGuid());
                 var permission_1 = Permission.Create(permissionId_1, "Permission 1");
@@ -56,13 +60,17 @@ namespace EGHeals.Infrastructure.Helpers
                 var permission_6 = Permission.Create(permissionId_6, "Permission 6");
 
 
-                /******************************* Defined Roles *********************************/
+                /******************************* Defined Roles and assign permissions to it *********************************/
 
                 var superAdminRoleId = RoleId.Of(Guid.NewGuid());
                 var superAdminRole = Role.Create(superAdminRoleId, "SuperAdmin", null, true);
 
+                superAdminRole.AddPermission(superAdminPermissionId);
+
                 var radiologyCenterAdminRoleId = RoleId.Of(Guid.NewGuid());
                 var radiologyCenterAdminRole = Role.Create(radiologyCenterAdminRoleId, "RadiologyCenterAdmin", UserActivity.RADIOLOGY, true);
+
+                radiologyCenterAdminRole.AddPermission(radiologyCenterAdminPermissionId);
 
                 var radiologyCenterReceptionistRoleId = RoleId.Of(Guid.NewGuid());
                 var radiologyCenterReceptionistRole = Role.Create(radiologyCenterReceptionistRoleId, "Receptionist", UserActivity.RADIOLOGY, false);
@@ -83,69 +91,45 @@ namespace EGHeals.Infrastructure.Helpers
                 radiologyCenterAccountantRole.AddPermission(permissionId_6);
 
 
-                /******************************* Defined System Users *********************************/
+                /******************************* Defined Domain Users *********************************/
 
-                var superAdminUserId = SystemUserId.Of(Guid.NewGuid());
-                var superAdminUser = SystemUser.Create(superAdminUserId, "first name", "last name", "super@super.com", "01099315900");
+                var superAdminUserId = UserId.Of(Guid.NewGuid());
+                var superAdminUser = User.Create(superAdminUserId, "first name", "last name", "super@super.com", "01099315900");
                 superAdminUser.OwnershipId = superAdminUserId;
 
-                var radiologyCenterAdminUserId = SystemUserId.Of(Guid.NewGuid());
-                var radiologyCenterAdminUser = SystemUser.Create(radiologyCenterAdminUserId, "first name", "last name", "radiology@radiology.com", "01096513165");
+                var radiologyCenterAdminUserId = UserId.Of(Guid.NewGuid());
+                var radiologyCenterAdminUser = User.Create(radiologyCenterAdminUserId, "first name", "last name", "radiology@radiology.com", "01096513165");
                 radiologyCenterAdminUser.OwnershipId = radiologyCenterAdminUserId;
 
-                var radiologyCenterSubUserId = SystemUserId.Of(Guid.NewGuid());
-                var radiologyCenterSubUser = SystemUser.Create(radiologyCenterSubUserId, "first name", "last name", "sub@sub.com", "01093266551");
+                var radiologyCenterSubUserId = UserId.Of(Guid.NewGuid());
+                var radiologyCenterSubUser = User.Create(radiologyCenterSubUserId, "first name", "last name", "sub@sub.com", "01093266551");
                 radiologyCenterSubUser.OwnershipId = radiologyCenterAdminUserId;
 
+                /******************************* Assign Role Permissions To Users *********************************/
 
-                /******************************* Assign Roles To Users *********************************/
+                var superAdminUserRolePermission = superAdminUser.AddPermission(superAdminPermissionId);
+                superAdminUserRolePermission.OwnershipId = superAdminUserId;
 
-                var addSuperAdminRole = superAdminUser.AddUserRole(superAdminRoleId);
-                addSuperAdminRole.OwnershipId = superAdminUserId;
+                var radiologyCenterAdminUserRolePermission = radiologyCenterAdminUser.AddPermission(radiologyCenterAdminPermissionId);
+                radiologyCenterAdminUserRolePermission.OwnershipId = radiologyCenterAdminUserId;
 
-                var addedRadiologyCenterAdminRole = radiologyCenterAdminUser.AddUserRole(radiologyCenterAdminRoleId);
-                addedRadiologyCenterAdminRole.OwnershipId = radiologyCenterAdminUserId;
-
-                var addedRadiologyCenterReceptionistRole = radiologyCenterSubUser.AddUserRole(radiologyCenterReceptionistRoleId);
-                addedRadiologyCenterReceptionistRole.OwnershipId = radiologyCenterAdminUserId;
-
-
-                /******************************* Assign Permissions To Users *********************************/
-
-                foreach (var permission in radiologyCenterReceptionistRole.Permissions)
-                {
-                    var addedPermission = addedRadiologyCenterAdminRole.AddPermission(permission.Id);
-                    addedPermission.OwnershipId = radiologyCenterAdminUserId;
-                }
+                var radiologyCenterSubUserRolePermission_1 = radiologyCenterSubUser.AddPermission(permissionId_1);
+                radiologyCenterSubUserRolePermission_1.OwnershipId = radiologyCenterAdminUserId;
+                var radiologyCenterSubUserRolePermission_2 = radiologyCenterSubUser.AddPermission(permissionId_2);
+                radiologyCenterSubUserRolePermission_2.OwnershipId = radiologyCenterAdminUserId;
 
                 /******************************* Defined Identity Users *********************************/
 
-                var IdentitySuperAdminUser = new ApplicationUser
-                {
-                    Id = superAdminUserId.Value,
-                    UserName = superAdminUser.UserName,
-                    Email = superAdminUser.Email,
-                    PhoneNumber = superAdminUser.Mobile,
-                };
+                var IdentitySuperAdminUser = superAdminUser.ToIdentityUser();
 
-                var identityRadiologyCenterAdminUser = new ApplicationUser
-                {
-                    Id = radiologyCenterAdminUserId.Value,
-                    UserName = radiologyCenterAdminUser.UserName,
-                    Email = radiologyCenterAdminUser.Email,
-                    PhoneNumber = radiologyCenterAdminUser.Mobile,
-                };
+                var identityRadiologyCenterAdminUser = radiologyCenterAdminUser.ToIdentityUser();
 
-                var identityRadiologyCenterSubUser = new ApplicationUser
-                {
-                    Id = radiologyCenterSubUserId.Value,
-                    UserName = radiologyCenterSubUser.UserName,
-                    Email = radiologyCenterSubUser.Email,
-                    PhoneNumber = radiologyCenterSubUser.Mobile,
-                };
+                var identityRadiologyCenterSubUser = radiologyCenterSubUser.ToIdentityUser();
 
                 /******************************* Inserting Data Into DataBase *********************************/
 
+                await dbContext.Permissions.AddAsync(superAdminPermission);
+                await dbContext.Permissions.AddAsync(radiologyCenterAdminPermission);
                 await dbContext.Permissions.AddAsync(permission_1);
                 await dbContext.Permissions.AddAsync(permission_2);
                 await dbContext.Permissions.AddAsync(permission_3);
@@ -158,10 +142,6 @@ namespace EGHeals.Infrastructure.Helpers
                 await dbContext.Roles.AddAsync(radiologyCenterReceptionistRole);
                 await dbContext.Roles.AddAsync(radiologyCenterRadiologistRole);
                 await dbContext.Roles.AddAsync(radiologyCenterAccountantRole);
-
-                await dbContext.SystemUsers.AddAsync(superAdminUser);
-                await dbContext.SystemUsers.AddAsync(radiologyCenterAdminUser);
-                await dbContext.SystemUsers.AddAsync(radiologyCenterSubUser);
 
                 await userManager.CreateAsync(IdentitySuperAdminUser, "010011012");
                 await userManager.CreateAsync(identityRadiologyCenterAdminUser, "011010012");

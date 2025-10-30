@@ -8,7 +8,7 @@ namespace EGHeals.Domain.Models.Shared.Users
         public IReadOnlyList<PermissionTranslation> Translations => _translations.AsReadOnly();
 
         public string Name { get; set; } = default!;
-
+        public bool IsActive { get; set; } = true;
         /***************************************** Domain Business *****************************************/
 
         public static Permission Create(PermissionId id, string name)
@@ -31,6 +31,25 @@ namespace EGHeals.Domain.Models.Shared.Users
             };
 
             return permission;
+        }
+
+        public void Activate()
+        {
+            if (IsActive)
+            {
+                throw new DomainException("Permission is already activated");
+            }
+
+            IsActive = true;
+        }
+        public void Deactivate()
+        {
+            if (!IsActive)
+            {
+                throw new DomainException("Permission is already deactivated");
+            }
+
+            IsActive = false;
         }
 
         public void AddTranslation(string name, LanguageCode languageCode)

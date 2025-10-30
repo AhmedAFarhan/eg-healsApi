@@ -1,5 +1,4 @@
-﻿using EGHeals.Domain.Enums;
-using EGHeals.Domain.ValueObjects.Shared.Users;
+﻿using EGHeals.Domain.ValueObjects.Shared.Users;
 
 namespace EGHeals.Domain.Models.Shared.Users
 {
@@ -11,10 +10,11 @@ namespace EGHeals.Domain.Models.Shared.Users
         public IReadOnlyList<RolePermission> Permissions => _permissions.AsReadOnly();
         public IReadOnlyList<RoleTranslation> Translations => _translations.AsReadOnly();
 
-        public string Name { get; private set; } = default!;
+        public string Name { get; set; } = default!;
         public UserActivity? UserActivity { get; private set; } // if ActivityType == null → global (system-level)
         public bool IsAdmin { get; set; } = false;
         public bool IsActive { get; set; } = true;
+
 
         /***************************************** Domain Business *****************************************/
 
@@ -31,7 +31,7 @@ namespace EGHeals.Domain.Models.Shared.Users
                 throw new ArgumentOutOfRangeException(nameof(name), name.Length, "Role name should be in range between 3 and 150 characters.");
             }
 
-            if(userActivity.HasValue && !Enum.IsDefined(typeof(UserActivity), userActivity.Value))
+            if (userActivity.HasValue && !Enum.IsDefined(typeof(UserActivity), userActivity.Value))
             {
                 throw new ArgumentException("user activity value is out of range.", nameof(userActivity));
             }
@@ -50,17 +50,17 @@ namespace EGHeals.Domain.Models.Shared.Users
 
         public void AddPermission(PermissionId permissionId)
         {
-            var permission = new RolePermission(Id, permissionId);
+            var rolePermission = new RolePermission(Id, permissionId);
 
-            _permissions.Add(permission);
+            _permissions.Add(rolePermission);
         }
         public void RemovePermission(PermissionId permissionId)
         {
-            var permission = _permissions.FirstOrDefault(x => x.PermissionId == permissionId);
+            var rolePermission = _permissions.FirstOrDefault(x => x.PermissionId == permissionId);
 
-            if (permission is not null)
+            if (rolePermission is not null)
             {
-                _permissions.Remove(permission);
+                _permissions.Remove(rolePermission);
             }
         }
 

@@ -1,21 +1,29 @@
-﻿using EGHeals.Application.Dtos.Roles;
+﻿using EGHeals.Application.Dtos.Roles.Responses;
 using EGHeals.Domain.Models.Shared.Users;
 
 namespace EGHeals.Application.Extensions.Roles
 {
     public static class RoleExtensions
     {
-        public static IEnumerable<RoleDto> ToRolesDtos(this IEnumerable<Role> roles)
+        public static IEnumerable<RoleResponseDto> ToRolesDtos(this IEnumerable<Role> roles)
         {
-            return roles.Select(role => new RoleDto
+            return roles.Select(role => new RoleResponseDto
             (
                 Id: role.Id.Value,
                 Name: role.Name,
-                RolePermissions: role.Permissions.Select(permission => new RolePermissionDto
+                Permissions: role.Permissions.Select(permission => new PermissionResponseDto
                 (
                     Id: permission.Id.Value,
-                    PermissionName: permission.Permission.Name
+                    Name: permission.Permission.Name
                 ))
+            ));
+        }
+        public static IEnumerable<PermissionResponseDto> ToPermissionsDtos(this IEnumerable<Permission> roles)
+        {
+            return roles.Select(role => new PermissionResponseDto
+            (
+                Id: role.Id.Value,
+                Name: role.Name
             ));
         }
     }

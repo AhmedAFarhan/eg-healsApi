@@ -20,6 +20,7 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
 
             //builder.HasOne<Permission>().WithMany().HasForeignKey(x => x.PermissionId).OnDelete(DeleteBehavior.Restrict); //incase we don't have navigation property
             builder.HasOne(r => r.Permission).WithMany().HasForeignKey(x => x.PermissionId).OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

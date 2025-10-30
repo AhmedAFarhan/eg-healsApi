@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace BuildingBlocks.DataAccessAbstraction.Repository
 {
-    public interface IBaseRepository<T, TId> where T : ISystemEntity<TId> where TId : class
+    public interface IBaseRepository<T, TId> where T : class, ISystemEntity<TId> where TId : class
     {
         /************************************** Query methods ***************************************/
 

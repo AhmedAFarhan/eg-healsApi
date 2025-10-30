@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 
 namespace BuildingBlocks.DataAccess.Repository
 {
-    public class BaseRepository<T, TId, TContext>(TContext dbContext, ICurrentUserService userContext) : IBaseRepository<T, TId> where T : SystemEntity<TId> where TId : class where TContext : DbContext 
+    public class BaseRepository<T, TId, TContext>(TContext dbContext, ICurrentUserService userContext) : IBaseRepository<T, TId> where T : class, ISystemEntity<TId> where TId : class where TContext : DbContext 
     {
         protected readonly DbSet<T> _dbSet = dbContext.Set<T>();
 
@@ -29,10 +29,10 @@ namespace BuildingBlocks.DataAccess.Repository
             query = ApplyIncludes(query, includes);
 
             //Included deleted entities
-            query = await IncludeDeletedEntities(query, includeDeleted);
+            query = IncludeDeletedEntities(query, includeDeleted);
 
             //Include Ownership
-            query = await IncludeOwnership(query, includeOwnership);
+            query = IncludeOwnership(query, includeOwnership);
 
             // Apply filtering
             var filterExpression = options.QueryFilters.BuildFilterExpression();
@@ -59,10 +59,10 @@ namespace BuildingBlocks.DataAccess.Repository
             var query = _dbSet.AsQueryable();
 
             //Included deleted entities
-            query = await IncludeDeletedEntities(query, includeDeleted);
+            query = IncludeDeletedEntities(query, includeDeleted);
 
             //Apply Ownership
-            query = await IncludeOwnership(query, includeOwnership);
+            query = IncludeOwnership(query, includeOwnership);
 
             //Apply Includes
             query = ApplyIncludes(query, includes);
@@ -79,10 +79,10 @@ namespace BuildingBlocks.DataAccess.Repository
             var query = _dbSet.AsQueryable();
 
             //Included deleted entities
-            query = await IncludeDeletedEntities(query, includeDeleted);
+            query = IncludeDeletedEntities(query, includeDeleted);
 
             //Apply Ownership
-            query = await IncludeOwnership(query, includeOwnership);
+            query = IncludeOwnership(query, includeOwnership);
 
             // Apply filtering
             var filterExpression = filters.BuildFilterExpression();
@@ -123,7 +123,7 @@ namespace BuildingBlocks.DataAccess.Repository
 
 
         /************************************** Helper methods ***************************************/
-        protected async Task<IQueryable<T>> IncludeDeletedEntities(IQueryable<T> query, bool includeDeleted = false)
+        protected IQueryable<T> IncludeDeletedEntities(IQueryable<T> query, bool includeDeleted = false)
         {
             if (includeDeleted)
             {
@@ -133,12 +133,12 @@ namespace BuildingBlocks.DataAccess.Repository
             return query;
         }
 
-        protected async Task<IQueryable<T>> IncludeOwnership(IQueryable<T> query, bool includeOwnership = false)
+        protected IQueryable<T> IncludeOwnership(IQueryable<T> query, bool includeOwnership = false)
         {
             if (includeOwnership && typeof(IEntity).IsAssignableFrom(typeof(T)))
             {
                 var ownedBy = userContext.OwnershipId;
-                query = query.Where(x => ((IEntity)x).OwnershipId == SystemUserId.Of(ownedBy.Value));
+                query = query.Where(x => ((IEntity)x).OwnershipId == UserId.Of(ownedBy.Value));
             }
             return query;
         }

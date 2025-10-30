@@ -1,12 +1,12 @@
 ﻿using BuildingBlocks.Responses.Factories;
-using EGHeals.Application.Contracts.Users.EGHeals.Application.Contracts.Users;
-using EGHeals.Application.Services;
+using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
+using EGHeals.Domain.Models.Shared.Users;
+using EGHeals.Domain.ValueObjects.Shared.Users;
 
 
 namespace EGHeals.Application.Features.Users.Commands.RegisterSubUser
 {
-    public class RegisterSubUserCommandHandler(IUnitOfWork unitOfWork,
-                                               IIdentityService identityService) : ICommandHandler<RegisterSubUserCommand, RegisterUserResult>
+    public class RegisterSubUserCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<RegisterSubUserCommand, RegisterUserResult>
     {
         public async Task<RegisterUserResult> Handle(RegisterSubUserCommand command, CancellationToken cancellationToken)
         {
@@ -20,23 +20,30 @@ namespace EGHeals.Application.Features.Users.Commands.RegisterSubUser
                 throw new BadRequestException("Email is already exist.");
             }
 
-            // 3 - Create system user and identity user using identity service
-            var userId = Guid.NewGuid();
-            var identityResult = await identityService.CreateUserAsync(userId: userId,
-                                                                       firstName: command.User.FirstName,
-                                                                       lastName : command.User.LastName,
-                                                                       email: command.User.Email,
-                                                                       password: command.User.Password,
-                                                                       UserRoles: command.User.UserRoles);
+            // 3 - Create domain user
+            var user = User.Create(id: UserId.Of(Guid.NewGuid()),
+                                   firstName: command.User.FirstName,
+                                   lastName: command.User.LastName,
+                                   email: command.User.Email,
+                                   rawPassword: command.User.Password);
 
-            // 4 - Check if the user created successfully
+            // 4 - Add user permissions
+            foreach(var permission in command.User.UserPermissions.ToList())
+            {
+                user.AddPermission(PermissionId.Of(permission.Id));
+            }
+
+            // 5 - Add new user with save changes
+            var identityResult = await repo.CreateAsync(user);
+
+            // 6 - Check if the user created successfully
             if (!identityResult.Succeeded)
             {
                 throw new BadRequestException(identityResult.Errors.First().Description);
             }
 
-            // 5 - Build and return the response
-            var response = EGResponseFactory.Success<Guid>(userId, "Success operation.");
+            // 7 - Build and return the response
+            var response = EGResponseFactory.Success<Guid>(user.Id.Value, "Success operation.");
 
             return new RegisterUserResult(response);
         }

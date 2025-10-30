@@ -14,7 +14,9 @@ namespace EGHeals.Domain.Models.Shared.Users
 
         public RoleId RoleId { get; private set; } = default!;
         public PermissionId PermissionId { get; private set; } = default!;
-        public Permission Permission { get; private set; } = default!;/* NAVAIGATION PROPERTY */
         public bool IsActive { get; set; } = true;
+
+        public Role Role { get; private set; } = default!;/* NAVAIGATION PROPERTY */
+        public Permission Permission { get; private set; } = default!;/* NAVAIGATION PROPERTY */
     }
 }

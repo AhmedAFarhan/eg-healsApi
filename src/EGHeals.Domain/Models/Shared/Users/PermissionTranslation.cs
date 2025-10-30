@@ -1,4 +1,4 @@
-﻿using EGHeals.Domain.ValueObjects.Shared.Translations;
+﻿using EGHeals.Domain.Models.Shared.Translations;
 using EGHeals.Domain.ValueObjects.Shared.Users;
 
 namespace EGHeals.Domain.Models.Shared.Users

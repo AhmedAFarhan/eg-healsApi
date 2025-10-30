@@ -20,14 +20,14 @@ namespace EGHeals.Infrastructure.Data.Interceptors
 
         private async Task UpdateEntities(DbContext context)
         {
-            if (context is ApplicationDbContext db && db.IsSeeding) return;
+            if (context is ApplicationIdentityDbContext db && db.IsSeeding) return;
 
             var userContext = getUserContext();
             var userId = userContext.UserId.Value;
 
             foreach (var entity in context.ChangeTracker.Entries<IEntity>())
             {
-                entity.Entity.OwnershipId = SystemUserId.Of(userId == Guid.Empty ? Guid.NewGuid() : userId);
+                entity.Entity.OwnershipId = UserId.Of(userId == Guid.Empty ? Guid.NewGuid() : userId);
 
                 if (entity.State == EntityState.Added)
                 {

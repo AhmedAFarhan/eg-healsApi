@@ -1,11 +1,9 @@
 ﻿using BuildingBlocks.Responses.Factories;
-using EGHeals.Application.Contracts.Users.EGHeals.Application.Contracts.Users;
-using EGHeals.Application.Services;
+using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
 
 namespace EGHeals.Application.Features.Users.Commands.UpdateSubUser
 {
-    public class UpdateSubUserCommandHandler(IUnitOfWork unitOfWork,
-                                             IIdentityService identityService) : ICommandHandler<UpdateSubUserCommand, UpdateSubUserResult>
+    public class UpdateSubUserCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<UpdateSubUserCommand, UpdateSubUserResult>
     {
         public async Task<UpdateSubUserResult> Handle(UpdateSubUserCommand command, CancellationToken cancellationToken)
         {
@@ -13,10 +11,9 @@ namespace EGHeals.Application.Features.Users.Commands.UpdateSubUser
             var repo = unitOfWork.GetCustomRepository<IUserRepository>();
 
             // 2 - Check if the user exist
-            var userExist = await repo.GetByIdAsync(id: SystemUserId.Of(command.User.Id),
-                                                    includeOwnership: true,
-                                                    includeDeleted: false,
-                                                    cancellationToken:cancellationToken);
+            var userExist = await repo.GetByIdAsync(id: UserId.Of(command.Id),
+                                                    includeOwnershipId: true,
+                                                    cancellationToken: cancellationToken);
             if (userExist is null)
             {
                 throw new BadRequestException("User not found.");
@@ -29,24 +26,22 @@ namespace EGHeals.Application.Features.Users.Commands.UpdateSubUser
                 throw new BadRequestException("Email is already exist.");
             }
 
-            // 3 - Update system user
+            // 4 - Update system user
             userExist.Update(firstName: command.User.FirstName,
                              lastName: command.User.LastName,
                              email: command.User.Email);
 
-            // 4 - Update identity user using identity service and save changes
-            var identityResult = await identityService.UpdateUserAsync(userId: userExist.Id.Value.ToString(),
-                                                               userName: userExist.UserName,
-                                                               email: userExist.Email,
-                                                               password: command.User.Password);
-
-            // 4 - Check if the user updated successfully
-            if (!identityResult.Succeeded)
+            // 5 - Update user
+            var updatedUser = await repo.UpdateAsync(userExist);
+            if (updatedUser is null)
             {
-                throw new BadRequestException(identityResult.Errors.First().Description);
+                throw new BadRequestException("User not found");
             }
 
-            // 5 - Build and return the response
+            // 6 - Save changes
+            await unitOfWork.SaveChangesAsync();
+
+            // 7 - Build and return the response
             var response = EGResponseFactory.Success<Guid>(userExist.Id.Value, "Success operation.");
 
             return new UpdateSubUserResult(response);

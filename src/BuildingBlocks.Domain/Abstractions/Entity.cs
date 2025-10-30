@@ -5,6 +5,6 @@ namespace BuildingBlocks.Domain.Abstractions
 {
     public abstract class Entity<T> : SystemEntity<T>, IEntity<T>
     {
-        public SystemUserId OwnershipId { get; set; } = default!;
+        public UserId OwnershipId { get; set; } = default!;
     }
 }

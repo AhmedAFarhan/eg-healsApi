@@ -1,47 +1,40 @@
-﻿using EGHeals.Application.Dtos.Users;
+﻿using EGHeals.Application.Dtos.Roles.Responses;
+using EGHeals.Application.Dtos.Users;
+using EGHeals.Application.Dtos.Users.Responses;
 using EGHeals.Domain.Models.Shared.Users;
 
 namespace EGHeals.Application.Extensions.Users
 {
     public static class UserExtensions
     {
-        public static UserDto ToUserDto(this SystemUser user)
+        public static UserResponseDto ToUserDto(this User user)
         {
-            return new UserDto
+            return new UserResponseDto
             (
-                Id : user.Id.Value,
+                Id: user.Id.Value,
                 FirstName: user.FirstName,
                 LastName: user.LastName,
-                Username : user.UserName,
-                Email : user.Email,
-                Mobile : user.Mobile,
+                Username: user.UserName,
+                Email: user.Email,
+                PhoneNumber: user.PhoneNumber,
                 OwnershipId: user.OwnershipId.Value,
-                UserRoles : user.UserRoles.Select(role => new UserRoleDto
+                Permissions: user.UserPermissions.Select(permission => new PermissionResponseDto
                 (
-                    Id: role.Id.Value,
-                    RoleId: role.Role.Id.Value,
-                    RoleName : role.Role.Name,
-                    UserRolePermissions : role.UserRolePermissions.Select(permission => new UserRolePermissionDto
-                    (
-                        Id : permission.Id.Value,
-                        //PermissionId: permission.RolePermission is not null ? permission.RolePermission.Permission.Id.Value : Guid.Empty,
-                        RolePermissionId: permission.RolePermission.Id.Value,
-                        PermissionName : permission.RolePermission is not null ? permission.RolePermission.Permission.Name : "Permission"
-                    ))
+                    Id: permission.Id.Value,
+                    Name: permission.Permission.Name
                 ))
             );
         }
-        public static IEnumerable<SubUserDto> ToSubUsersDtos(this IEnumerable<SystemUser> users)
+        public static IEnumerable<SubUserResponseDto> ToSubUsersDtos(this IEnumerable<User> users)
         {
-            return users.Select(user => new SubUserDto
+            return users.Select(user => new SubUserResponseDto
             (
                 Id: user.Id.Value,
+                FirstName: user.FirstName,
+                LastName: user.LastName,
                 Username: user.UserName,
-                UserRoles: user.UserRoles.Select(role => new SubUserRoleDto
-                (
-                    Id: role.Id.Value,
-                    RoleName: role.Role.Name
-                ))
+                Email: user.Email,
+                PhoneNumber: user.PhoneNumber
             ));
         }
     }

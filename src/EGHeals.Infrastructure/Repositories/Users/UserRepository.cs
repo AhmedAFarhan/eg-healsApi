@@ -1,83 +1,135 @@
 ﻿using BuildingBlocks.DataAccessAbstraction.Queries;
 using BuildingBlocks.DataAccessAbstraction.Services;
-using EGHeals.Application.Contracts.Users.EGHeals.Application.Contracts.Users;
+using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
 using EGHeals.Domain.Models.Shared.Users;
+using EGHeals.Infrastructure.Data;
+using EGHeals.Infrastructure.Extensions;
+using EGHeals.Infrastructure.Services.Users;
+using Microsoft.AspNetCore.Identity;
 
 namespace EGHeals.Infrastructure.Repositories.Users
 {
-    public class UserRepository<TContext> : BaseRepository<SystemUser, SystemUserId, TContext>, IUserRepository where TContext : DbContext
+    public class UserRepository(ApplicationIdentityDbContext dbContext,
+                                UserManager<AppUser> userManager, 
+                                ICurrentUserService currentUserService) : IUserRepository
     {
-        public UserRepository(TContext dbContext, ICurrentUserService userContext) : base(dbContext, userContext) { }
-
-        public async Task<bool> IsUserExistAsync(string username, CancellationToken cancellationToken = default)
-        {
-            return await _dbSet.AnyAsync(u => u.NormalizedUserName == username.ToUpperInvariant() && u.IsActive && !u.IsDeleted, cancellationToken);
-        }
-
         public async Task<bool> IsEmailExistAsync(string email, Guid? excludeUserId = null, CancellationToken cancellationToken = default)
         {
-            var excludedId = excludeUserId.HasValue ? SystemUserId.Of(excludeUserId.Value) : null;
-            return await _dbSet.AnyAsync(u => u.NormalizedEmail == email.ToUpperInvariant() && (excludedId == null || u.Id != excludedId), cancellationToken);
+            var excludedId = excludeUserId.HasValue ? UserId.Of(excludeUserId.Value) : null;
+            return await dbContext.Users.AnyAsync(u => u.NormalizedEmail == email.ToUpperInvariant() && (excludedId == null || u.Id != excludedId), cancellationToken);
         }
-
         public async Task<bool> IsMobileExistAsync(string mobile, Guid? excludeUserId = null, CancellationToken cancellationToken = default)
         {
-            var excludedId = excludeUserId.HasValue ? SystemUserId.Of(excludeUserId.Value) : null;
-            return await _dbSet.AnyAsync(u => u.Mobile == mobile && (excludedId == null || u.Id != excludedId), cancellationToken);
+            var excludedId = excludeUserId.HasValue ? UserId.Of(excludeUserId.Value) : null;
+            return await dbContext.Users.AnyAsync(u => u.PhoneNumber == mobile && (excludedId == null || u.Id != excludedId), cancellationToken);
+        }
+        public async Task<bool> CheckPasswordAsync(string username, string password)
+        {
+            var user = await userManager.FindByNameAsync(username);
+
+            if (user == null) return false;
+
+            var IsValid = await userManager.CheckPasswordAsync(user, password);
+
+            return IsValid;
         }
 
-        public async Task<SystemUser?> GetUserRolesAsync(string username, CancellationToken cancellationToken = default)
+        public async Task<User?> FindUserByNameAsync(string username, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.AsNoTracking()
-                               .AsSplitQuery()
-                               .Include(x => x.UserRoles)
-                                    .ThenInclude(x => x.Role)
-                               .Include(x => x.UserRoles)
-                                    .ThenInclude(x => x.UserRolePermissions)
-                                        .ThenInclude(x => x.RolePermission)
-                                            .ThenInclude(x => x.Permission)
-                               .FirstOrDefaultAsync(u => u.UserName == username && u.IsActive && !u.IsDeleted, cancellationToken);
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.NormalizedUserName == username.ToUpperInvariant() && !u.IsDeleted, cancellationToken);
+            return user?.ToDomainUser();
         }
-
-        public async Task<IEnumerable<SystemUser>> GetSubUsersAsync(QueryOptions<SystemUser> options,
-                                                                    bool ignoreOwnership = false,
-                                                                    CancellationToken cancellationToken = default)
+        public async Task<User?> FindUserByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
-            //Starting query
-            var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted && x.IsActive);
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant() && !u.IsDeleted, cancellationToken);
+            return user?.ToDomainUser();
+        }
+        public async Task<User?> FindUserByMobileAsync(string mobile, CancellationToken cancellationToken = default)
+        {
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber == mobile.ToUpperInvariant() && !u.IsDeleted, cancellationToken);
+            return user?.ToDomainUser();
+        }
+     
+        public async Task<IdentityResult> CreateAsync(User entity, CancellationToken cancellationToken = default)
+        {
+            var identityUser = entity.ToIdentityUser();
 
-            //Apply Ownership
-            query = await IncludeOwnership(query, ignoreOwnership);
+            IdentityResult result;
 
-            query = query.Include(x => x.UserRoles)
-                            .ThenInclude(x => x.Role);
-
-            // Apply filtering
-            var filterExpression = options.QueryFilters.BuildFilterExpression();
-            if (filterExpression != null)
+            if (!string.IsNullOrWhiteSpace(entity.RawPassword))
             {
-                query = query.Where(filterExpression);
+                result = await userManager.CreateAsync(identityUser, entity.RawPassword);
+            }
+            else
+            {
+                result = await userManager.CreateAsync(identityUser); // Used with patient users who logged with otp
             }
 
-            // Apply sorting
-            query = options.ApplySorting(query);
+            if (!result.Succeeded) return result;
 
-            // Apply pagination
-            query = query.Skip(options.Skip).Take(options.Take);
-
-
-            return await query.AsNoTracking().AsSplitQuery().ToListAsync(cancellationToken);
+            return IdentityResult.Success;
         }
+        public async Task<User?> UpdateAsync(User entity, CancellationToken cancellationToken = default)
+        {
+            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == entity.Id, cancellationToken);
 
-        public async Task<long> GetSubUsersCountAsync(QueryFilters<SystemUser> filters,
-                                                      bool ignoreOwnership = false,
+            if (existingUser is null) return null;
+
+            existingUser.CopyToIdentity(entity);
+
+            dbContext.Users.Update(existingUser);
+
+            return existingUser.ToDomainUser();
+        }
+        public async Task<User?> SoftDeleteAsync(User user, CancellationToken cancellationToken = default)
+        {
+            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+
+            if (existingUser is null) return null;
+
+            existingUser.IsDeleted = true;
+
+            dbContext.Users.Update(existingUser);
+
+            return existingUser.ToDomainUser();
+        }
+        public async Task<User?> HardDeleteAsync(UserId id, CancellationToken cancellationToken = default)
+        {
+            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+            if (existingUser is null) return null;
+
+            existingUser.IsDeleted = true;
+
+            dbContext.Users.Remove(existingUser);
+
+            return existingUser.ToDomainUser();
+        }
+        public async Task<User?> GetByIdAsync(UserId id, bool includeOwnershipId = false, CancellationToken cancellationToken = default)
+        {
+            var query = dbContext.Users.Where(u => u.Id == id && !u.IsDeleted);
+
+            if (includeOwnershipId)
+            {
+                query = query.Where(u => u.OwnershipId == UserId.Of(currentUserService.OwnershipId.Value));
+            }
+
+            var identityUser = await query.FirstOrDefaultAsync(cancellationToken);
+
+            return identityUser?.ToDomainUser();
+        }
+        public async Task<long> GetSubUsersCountAsync(QueryFilters<User> filters,
+                                                      bool includeOwnership = false,
                                                       CancellationToken cancellationToken = default)
         {
             //Starting query
-            var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted /*&& x.UserType == UserType.SUBUSER*/);
+            var query = dbContext.Users.Where(x => !x.IsDeleted).Select(x => x.ToDomainUser()); ;
 
             //Apply Ownership
-            query = await IncludeOwnership(query, ignoreOwnership);
+            if(includeOwnership)
+            {
+                query = query.Where(x => x.OwnershipId == UserId.Of(currentUserService.OwnershipId.Value));
+            }
 
             // Apply filtering
             var filterExpression = filters.BuildFilterExpression();
@@ -87,28 +139,6 @@ namespace EGHeals.Infrastructure.Repositories.Users
             }
 
             return await query.LongCountAsync(cancellationToken);
-        }
-
-        public async Task<SystemUser?> GetSubUserRolesAsync(Guid userId,
-                                                            bool ignoreOwnership = false,
-                                                            CancellationToken cancellationToken = default)
-        {
-            //Starting query
-            var query = _dbSet.AsQueryable().Where(x => !x.IsDeleted /*&& x.UserType == UserType.SUBUSER*/);
-
-            //Apply Ownership
-            query = await IncludeOwnership(query, ignoreOwnership);
-
-            return await _dbSet.AsQueryable().AsNoTracking()
-                                             .AsSplitQuery().
-                                             Include(x => x.UserRoles)
-                                                .ThenInclude(x => x.Role)
-                                            .Include(x => x.UserRoles)
-                                                .ThenInclude(x => x.UserRolePermissions)
-                                                    .ThenInclude(x => x.RolePermission)
-                                                        .ThenInclude(x => x.Permission)
-                                            .FirstOrDefaultAsync(x => x.Id == SystemUserId.Of(userId));
-
         }
     }
 }

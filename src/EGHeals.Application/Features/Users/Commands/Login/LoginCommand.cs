@@ -1,8 +1,8 @@
-﻿using EGHeals.Application.Dtos.Users;
+﻿using EGHeals.Application.Dtos.Users.Requests;
 
 namespace EGHeals.Application.Features.Users.Commands.Login
 {
-    public record LoginCommand(LoginUserDto UserLogin) : ICommand<LoginResult>;
+    public record LoginCommand(LoginUserRequestDto UserLogin) : ICommand<LoginResult>;
     public record LoginResult(EGResponse<string> Response);
 
     public class LoginCommandValidator : AbstractValidator<LoginCommand>
@@ -13,7 +13,7 @@ namespace EGHeals.Application.Features.Users.Commands.Login
                                      .SetValidator(new UserLoginDtoValidator());
         }
     }
-    public class UserLoginDtoValidator : AbstractValidator<LoginUserDto>
+    public class UserLoginDtoValidator : AbstractValidator<LoginUserRequestDto>
     {
         public UserLoginDtoValidator()
         {

@@ -1,5 +1,4 @@
 ﻿using EGHeals.Domain.Models.Shared.Owners;
-using EGHeals.Domain.Models.Shared.Users;
 using EGHeals.Domain.ValueObjects.Shared.Owners;
 
 namespace EGHeals.Infrastructure.Data.Configurations.Shared.Owners
@@ -21,7 +20,7 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Owners
 
             /*************************** Relationships ****************************/
 
-            builder.HasOne<SystemUser>().WithMany().HasForeignKey(x => x.OwnershipId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnershipId).OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

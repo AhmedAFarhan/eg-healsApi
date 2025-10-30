@@ -3,6 +3,6 @@
 
 namespace EGHeals.Application.Features.Users.Commands.UpdateSubUser
 {
-    public record UpdateSubUserCommand(UpdateSubUserRequestDto User) : ICommand<UpdateSubUserResult>;
-    public record UpdateSubUserResult(EGResponse<Guid> response);
+    public record UpdateSubUserCommand(Guid Id, UpdateSubUserRequestDto User) : ICommand<UpdateSubUserResult>;
+    public record UpdateSubUserResult(EGResponse<Guid> Response);
 }

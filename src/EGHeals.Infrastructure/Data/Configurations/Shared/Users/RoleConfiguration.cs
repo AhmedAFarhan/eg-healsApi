@@ -7,6 +7,8 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {
+            builder.ToTable("Roles");
+
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasConversion(id => id.Value, dbId => RoleId.Of(dbId));
 
@@ -22,7 +24,7 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
 
             /*************************** Relationships ****************************/
 
-            builder.HasMany(o => o.Permissions).WithOne().HasForeignKey(tb => tb.RoleId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(o => o.Permissions).WithOne(rp => rp.Role).HasForeignKey(tb => tb.RoleId).OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(o => o.Translations).WithOne().HasForeignKey(tb => tb.RoleId).OnDelete(DeleteBehavior.Cascade);
         }
