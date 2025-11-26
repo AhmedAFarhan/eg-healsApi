@@ -1,4 +1,5 @@
-﻿using EGHeals.Domain.Models.Shared.Users;
+﻿using EGHeals.Domain.Enums.Shared;
+using EGHeals.Domain.Models.Shared.Users;
 using EGHeals.Domain.ValueObjects.Shared.Users;
 
 namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
@@ -7,6 +8,8 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
     {
         public void Configure(EntityTypeBuilder<PermissionTranslation> builder)
         {
+            builder.ToTable("PermissionsTranslations", "Shared");
+
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasConversion(id => id.Value, dbId => PermissionTranslationId.Of(dbId));
 

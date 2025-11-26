@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Owners
 {
-    public class Store : Entity<StoreId>
+    public class Store : AuditableEntity<StoreId>
     {
         public string Name { get; private set; } = default!;
         public BranchId BranchId { get; private set; } = default!;

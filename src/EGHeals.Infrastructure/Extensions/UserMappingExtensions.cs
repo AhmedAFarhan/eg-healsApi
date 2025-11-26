@@ -1,5 +1,6 @@
-﻿using EGHeals.Domain.Models.Shared.Users;
-using System.Reflection;
+﻿using BuildingBlocks.DataAccessAbstraction.Models;
+using BuildingBlocks.DataAccessAbstraction.Queries;
+using EGHeals.Domain.Models.Shared.Users;
 
 namespace EGHeals.Infrastructure.Extensions
 {
@@ -7,8 +8,6 @@ namespace EGHeals.Infrastructure.Extensions
     {
         public static User ToDomainUser(this AppUser appUser)
         {
-            if (appUser is null) return null;
-
             var user = new User
             {
                 Id = appUser.Id,
@@ -19,14 +18,15 @@ namespace EGHeals.Infrastructure.Extensions
                 Email = appUser.Email,
                 NormalizedEmail = appUser.NormalizedEmail,
                 PhoneNumber = appUser.PhoneNumber,
-                OwnershipId = appUser.OwnershipId,
+                TenantId = appUser.TenantId,
+                Tenant = appUser.Tenant,
                 IsActive = appUser.IsActive
             };
 
             // Map permissions
-            if (appUser.UserPermissions is not null && appUser.UserPermissions.Count > 0)
+            if (appUser.UserRoles is not null && appUser.UserRoles.Count > 0)
             {
-                user.AddPermissionsRange(appUser.UserPermissions.ToList());
+                user.AddRolesRange(appUser.UserRoles.ToList());
             }
 
             // Map client applications
@@ -40,25 +40,69 @@ namespace EGHeals.Infrastructure.Extensions
 
         public static AppUser ToIdentityUser(this User user)
         {
-            if (user is null) return null;
+            var appUser = new AppUser();
 
-            var appUser = new AppUser
+            appUser.CopyToIdentity(user);
+
+            return appUser;
+        }
+
+        public static QueryOptions<AppUser> ToAppUserQueryOptions(this QueryOptions<User> domainOptions)
+        {
+            var appOptions = new QueryOptions<AppUser>
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserName = user.UserName,
-                NormalizedUserName = user.NormalizedUserName,
-                Email = user.Email,
-                NormalizedEmail = user.NormalizedEmail,
-                OwnershipId = user.OwnershipId,
-                PhoneNumber = user.PhoneNumber,
+                PageIndex = domainOptions.PageIndex,
+                PageSize = domainOptions.PageSize,
+                SortBy = domainOptions.SortBy,
+                SortDescending = domainOptions.SortDescending,
+                QueryFilters = new QueryFilters<AppUser>
+                {
+                    UseOrLogic = domainOptions.QueryFilters.UseOrLogic,
+                    Filters = domainOptions.QueryFilters.Filters.Select(f => new FilterExpression
+                    {
+                        PropertyName = f.PropertyName,
+                        Operator = f.Operator,
+                        Value = f.Value
+                    }).ToList()
+                }
             };
 
-            // Map permissions
-            if (user.UserPermissions is not null && user.UserPermissions.Count > 0)
+            return appOptions;
+        }
+
+        public static QueryFilters<AppUser> ToAppUserQueryFilters(this QueryFilters<User> domainOptions)
+        {
+            var appOptions = new QueryFilters<AppUser>
             {
-                appUser.AddPermissionsRange(user.UserPermissions.ToList());
+                UseOrLogic = domainOptions.UseOrLogic,
+                Filters = domainOptions.Filters.Select(f => new FilterExpression
+                {
+                    PropertyName = f.PropertyName,
+                    Operator = f.Operator,
+                    Value = f.Value
+                }).ToList()
+            };
+
+            return appOptions;
+        }
+
+        public static void CopyToIdentity(this AppUser appUser, User user)
+        {
+            appUser.Id = user.Id;
+            appUser.FirstName = user.FirstName;
+            appUser.LastName = user.LastName;
+            appUser.UserName = user.UserName;
+            appUser.NormalizedUserName = user.NormalizedUserName;
+            appUser.Email = user.Email;
+            appUser.NormalizedEmail = user.NormalizedEmail;
+            appUser.TenantId = user.TenantId;
+            appUser.Tenant = user.Tenant;
+            appUser.PhoneNumber = user.PhoneNumber;
+
+            // Map permissions
+            if (user.UserRoles is not null && user.UserRoles.Count > 0)
+            {
+                appUser.AddRolesRange(user.UserRoles.ToList());
             }
 
             // Map client applications
@@ -66,13 +110,6 @@ namespace EGHeals.Infrastructure.Extensions
             {
                 appUser.AddClientAppsRange(user.UserClientApplications.ToList());
             }
-
-            return appUser;
-        }
-
-        public static void CopyToIdentity(this AppUser appUser, User user)
-        {
-
         }
     }
 }

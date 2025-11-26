@@ -2,23 +2,17 @@
 
 namespace EGHeals.Domain.Models.Shared.Users
 {
-    public class Role : SystemAggregate<RoleId>
+    public class Role : AuditableAggregate<RoleId>
     {
-        private readonly List<RolePermission> _permissions = new();
-        private readonly List<RoleTranslation> _translations = new();
-
-        public IReadOnlyList<RolePermission> Permissions => _permissions.AsReadOnly();
-        public IReadOnlyList<RoleTranslation> Translations => _translations.AsReadOnly();
+        private readonly List<RolePermission> _rolePermissions = new();
+        public IReadOnlyList<RolePermission> RolePermissions => _rolePermissions.AsReadOnly();
 
         public string Name { get; set; } = default!;
-        public UserActivity? UserActivity { get; private set; } // if ActivityType == null → global (system-level)
-        public bool IsAdmin { get; set; } = false;
         public bool IsActive { get; set; } = true;
-
 
         /***************************************** Domain Business *****************************************/
 
-        public static Role Create(RoleId id, string name, UserActivity? userActivity, bool isAdmin, bool isActive = true)
+        public static Role Create(RoleId id, string name, bool isActive = true)
         {
             //Domain model validation
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
@@ -31,68 +25,31 @@ namespace EGHeals.Domain.Models.Shared.Users
                 throw new ArgumentOutOfRangeException(nameof(name), name.Length, "Role name should be in range between 3 and 150 characters.");
             }
 
-            if (userActivity.HasValue && !Enum.IsDefined(typeof(UserActivity), userActivity.Value))
-            {
-                throw new ArgumentException("user activity value is out of range.", nameof(userActivity));
-            }
-
             var role = new Role
             {
                 Id = id,
                 Name = name,
-                UserActivity = userActivity,
-                IsAdmin = isAdmin,
                 IsActive = isActive
             };
 
             return role;
         }
 
-        public void AddPermission(PermissionId permissionId)
+        public RolePermission AddPermission(PermissionId permissionId)
         {
             var rolePermission = new RolePermission(Id, permissionId);
 
-            _permissions.Add(rolePermission);
+            _rolePermissions.Add(rolePermission);
+
+            return rolePermission;
         }
         public void RemovePermission(PermissionId permissionId)
         {
-            var rolePermission = _permissions.FirstOrDefault(x => x.PermissionId == permissionId);
+            var rolePermission = _rolePermissions.FirstOrDefault(x => x.PermissionId == permissionId);
 
             if (rolePermission is not null)
             {
-                _permissions.Remove(rolePermission);
-            }
-        }
-
-        public void AddTranslation(string name, LanguageCode languageCode)
-        {
-            //Domain model validation
-            if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("translation name cannot be null, empty, or whitespace.", nameof(name));
-            }
-
-            if (name.Length < 3 || name.Length > 150)
-            {
-                throw new ArgumentOutOfRangeException(nameof(name), name.Length, "translation name should be in range between 3 and 150 characters.");
-            }
-
-            if (!Enum.IsDefined(languageCode))
-            {
-                throw new ArgumentException("language code value is out of range.", nameof(languageCode));
-            }
-
-            var translation = new RoleTranslation(Id, name, languageCode);
-
-            _translations.Add(translation);
-        }
-        public void RemoveTranslation(LanguageCode languageCode)
-        {
-            var translation = _translations.FirstOrDefault(x => x.LanguageCode == languageCode);
-
-            if (translation is not null)
-            {
-                _translations.Remove(translation);
+                _rolePermissions.Remove(rolePermission);
             }
         }
 

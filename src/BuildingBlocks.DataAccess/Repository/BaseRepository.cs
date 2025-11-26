@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 
 namespace BuildingBlocks.DataAccess.Repository
 {
-    public class BaseRepository<T, TId, TContext>(TContext dbContext, ICurrentUserService userContext) : IBaseRepository<T, TId> where T : class, ISystemEntity<TId> where TId : class where TContext : DbContext 
+    public class BaseRepository<T, TId, TContext>(TContext dbContext, IUserContextService userContext) : IBaseRepository<T, TId> where T : class, IBaseAuditableEntity<TId> where TId : class where TContext : DbContext 
     {
         protected readonly DbSet<T> _dbSet = dbContext.Set<T>();
 
@@ -18,7 +18,6 @@ namespace BuildingBlocks.DataAccess.Repository
 
         public async Task<IEnumerable<T>> GetAllAsync(QueryOptions<T> options,
                                                       bool includeDeleted = false,
-                                                      bool includeOwnership = false,
                                                       Expression<Func<T, object>>[]? includes = null,
                                                       CancellationToken cancellationToken = default)
         {
@@ -30,9 +29,6 @@ namespace BuildingBlocks.DataAccess.Repository
 
             //Included deleted entities
             query = IncludeDeletedEntities(query, includeDeleted);
-
-            //Include Ownership
-            query = IncludeOwnership(query, includeOwnership);
 
             // Apply filtering
             var filterExpression = options.QueryFilters.BuildFilterExpression();
@@ -51,7 +47,6 @@ namespace BuildingBlocks.DataAccess.Repository
         }
         public async Task<T?> GetByIdAsync(TId id,
                                            bool includeDeleted = false,
-                                           bool includeOwnership = false,
                                            Expression<Func<T, object>>[]? includes = null,
                                            CancellationToken cancellationToken = default)
         {
@@ -61,9 +56,6 @@ namespace BuildingBlocks.DataAccess.Repository
             //Included deleted entities
             query = IncludeDeletedEntities(query, includeDeleted);
 
-            //Apply Ownership
-            query = IncludeOwnership(query, includeOwnership);
-
             //Apply Includes
             query = ApplyIncludes(query, includes);
 
@@ -72,7 +64,6 @@ namespace BuildingBlocks.DataAccess.Repository
 
         public async Task<long> GetCountAsync(QueryFilters<T> filters,
                                               bool includeDeleted = false,
-                                              bool includeOwnership = false,
                                               CancellationToken cancellationToken = default)
         {
             ///Starting query
@@ -80,9 +71,6 @@ namespace BuildingBlocks.DataAccess.Repository
 
             //Included deleted entities
             query = IncludeDeletedEntities(query, includeDeleted);
-
-            //Apply Ownership
-            query = IncludeOwnership(query, includeOwnership);
 
             // Apply filtering
             var filterExpression = filters.BuildFilterExpression();
@@ -123,6 +111,7 @@ namespace BuildingBlocks.DataAccess.Repository
 
 
         /************************************** Helper methods ***************************************/
+
         protected IQueryable<T> IncludeDeletedEntities(IQueryable<T> query, bool includeDeleted = false)
         {
             if (includeDeleted)
@@ -130,16 +119,6 @@ namespace BuildingBlocks.DataAccess.Repository
                 query = query.Where(x => x.IsDeleted == includeDeleted);
             }
 
-            return query;
-        }
-
-        protected IQueryable<T> IncludeOwnership(IQueryable<T> query, bool includeOwnership = false)
-        {
-            if (includeOwnership && typeof(IEntity).IsAssignableFrom(typeof(T)))
-            {
-                var ownedBy = userContext.OwnershipId;
-                query = query.Where(x => ((IEntity)x).OwnershipId == UserId.Of(ownedBy.Value));
-            }
             return query;
         }
 

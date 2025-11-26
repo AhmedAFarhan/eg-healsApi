@@ -21,9 +21,8 @@ namespace EGHeals.Infrastructure.Authorization
             var identity = await base.GenerateClaimsAsync(user);
 
             var permissions = await _db.Users.Where(u => u.Id == user.Id)
-                                            .SelectMany(u => u.UserPermissions
-                                                .Where(up => up.Permission.IsActive)
-                                                .Select(up => up.Permission))
+                                             .SelectMany(u => u.UserRoles.Where(ur => ur.Role.IsActive)
+                                                                         .SelectMany(ur => ur.Role.RolePermissions.Select(rp => rp.Permission)))
                                             .ToListAsync();
 
             foreach (var p in permissions) identity.AddClaim(new Claim("Permission", p.Name));

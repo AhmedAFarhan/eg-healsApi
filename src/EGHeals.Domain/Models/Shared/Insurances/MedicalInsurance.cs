@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Insurances
 {
-    public class MedicalInsurance : Entity<MedicalInsuranceId>
+    public class MedicalInsurance : AuditableEntity<MedicalInsuranceId>
     {
         public string Name { get; private set; } = default!;
 

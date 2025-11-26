@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace EGHeals.Infrastructure.Data.Interceptors
 {
-    public class AuditableEntityInterceptor(Func<ICurrentUserService> getUserContext) : SaveChangesInterceptor
+    public class AuditableEntityInterceptor(Func<IUserContextService> getUserContext) : SaveChangesInterceptor
     {
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
@@ -23,11 +23,15 @@ namespace EGHeals.Infrastructure.Data.Interceptors
             if (context is ApplicationIdentityDbContext db && db.IsSeeding) return;
 
             var userContext = getUserContext();
-            var userId = userContext.UserId.Value;
+            var userId = userContext.UserId;
+            var tenantId = userContext.TenantId;
 
-            foreach (var entity in context.ChangeTracker.Entries<IEntity>())
+            foreach (var entity in context.ChangeTracker.Entries<IBaseAuditableEntity>())
             {
-                entity.Entity.OwnershipId = UserId.Of(userId == Guid.Empty ? Guid.NewGuid() : userId);
+                if (entity is IAuditableEntity auditableEntity)
+                {
+                    auditableEntity.TenantId = TenantId.Of(tenantId);
+                }
 
                 if (entity.State == EntityState.Added)
                 {

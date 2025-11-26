@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Users
 {
-    public class RolePermission : SystemEntity<RolePermissionId>
+    public class RolePermission : AuditableEntity<RolePermissionId>
     {
         internal RolePermission(RoleId roleId, PermissionId permissionId, bool isActive = true)
         {
@@ -16,7 +16,7 @@ namespace EGHeals.Domain.Models.Shared.Users
         public PermissionId PermissionId { get; private set; } = default!;
         public bool IsActive { get; set; } = true;
 
-        public Role Role { get; private set; } = default!;/* NAVAIGATION PROPERTY */
-        public Permission Permission { get; private set; } = default!;/* NAVAIGATION PROPERTY */
+        public Role Role { get; private set; } = default!; /* NAVAIGATION PROPERTY */
+        public Permission Permission { get; private set; } = default!; /* NAVAIGATION PROPERTY */
     }
 }

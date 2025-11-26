@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Applications
 {
-    public class ClientApplication : SystemEntity<ClientApplicationId>
+    public class ClientApplication : BaseAuditableEntity<ClientApplicationId>
     {
         public string Client { get; set; } = default!;
 

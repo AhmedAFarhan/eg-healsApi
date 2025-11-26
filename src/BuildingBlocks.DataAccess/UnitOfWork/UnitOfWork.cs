@@ -8,11 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks.DataAccess.UnitOfWork
 {
-    public class UnitOfWork<TContext>(TContext dbContext, IServiceProvider serviceProvider, ICurrentUserService? userContext = null) : IUnitOfWork where TContext : DbContext
+    public class UnitOfWork<TContext>(TContext dbContext, IServiceProvider serviceProvider, IUserContextService? userContext = null) : IUnitOfWork where TContext : DbContext
     {
         private readonly Dictionary<Type, object> _repositories = new();
 
-        public IBaseRepository<T, TId> GetRepository<T, TId>() where T : SystemEntity<TId> where TId : class
+        public IBaseRepository<T, TId> GetRepository<T, TId>() where T : BaseAuditableEntity<TId> where TId : class
         {
             if (!_repositories.ContainsKey(typeof(T)))
             {

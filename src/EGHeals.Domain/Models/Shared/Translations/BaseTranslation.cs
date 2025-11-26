@@ -1,7 +1,11 @@
-﻿namespace EGHeals.Domain.Models.Shared.Translations
+﻿using EGHeals.Domain.Enums.Shared;
+
+namespace EGHeals.Domain.Models.Shared.Translations
 {
-    public class BaseTranslation<TId> : SystemEntity<TId>
+    public class BaseTranslation<TId>
     {
+        public TId Id { get; set; } = default!;
+
         internal BaseTranslation(string name, LanguageCode languageCode)
         {
             Name = name;

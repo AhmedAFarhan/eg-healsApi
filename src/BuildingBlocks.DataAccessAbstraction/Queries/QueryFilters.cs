@@ -1,19 +1,18 @@
 ﻿using BuildingBlocks.DataAccessAbstraction.Models;
 using BuildingBlocks.DataAccessAbstraction.Services;
-using BuildingBlocks.Domain.Abstractions.Interfaces;
 using BuildingBlocks.Domain.Security;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace BuildingBlocks.DataAccessAbstraction.Queries
 {
-    public class QueryFilters<T> where T : ISystemEntity
+    public class QueryFilters<T> where T : class
     {
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IUserContextService _currentUserService;
 
-        public QueryFilters(ICurrentUserService currentUserService)
+        public QueryFilters(/*ICurrentUserService currentUserService*/)
         {
-            _currentUserService = currentUserService;
+            //_currentUserService = currentUserService;
         }
 
         public List<FilterExpression> Filters { get; set; } = new();

@@ -2,18 +2,23 @@
 
 namespace EGHeals.Domain.Models.Shared.Users
 {
-    public class Permission : SystemAggregate<PermissionId>
+    public class Permission
     {
         private readonly List<PermissionTranslation> _translations = new();
         public IReadOnlyList<PermissionTranslation> Translations => _translations.AsReadOnly();
 
+        public PermissionId Id { get; set; } = default!;
         public string Name { get; set; } = default!;
+        public UserActivity UserActivity { get; set; } = UserActivity.SYSTEM;
         public bool IsActive { get; set; } = true;
+        public bool IsAdmin { get; set; } = false;
+
         /***************************************** Domain Business *****************************************/
 
-        public static Permission Create(PermissionId id, string name)
+        public static Permission Create(PermissionId id, string name, UserActivity userActivity, bool isAdmin = false)
         {
             //Domain model validation
+
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Permission name cannot be null, empty, or whitespace.", nameof(name));
@@ -24,10 +29,17 @@ namespace EGHeals.Domain.Models.Shared.Users
                 throw new ArgumentOutOfRangeException(nameof(name), name.Length, "Permission name should be in range between 3 and 150 characters.");
             }
 
+            if (!Enum.IsDefined(typeof(UserActivity), userActivity))
+            {
+                throw new ArgumentException("UserActivity is out of range.", nameof(userActivity));
+            }
+
             var permission = new Permission
             {
                 Id = id,
                 Name = name,
+                UserActivity = userActivity,
+                IsAdmin = isAdmin
             };
 
             return permission;

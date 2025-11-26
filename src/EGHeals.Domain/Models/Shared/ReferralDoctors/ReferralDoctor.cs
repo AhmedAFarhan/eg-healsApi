@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.ReferralDoctors
 {
-    public class ReferralDoctor : Entity<ReferralDoctorId>
+    public class ReferralDoctor : AuditableEntity<ReferralDoctorId>
     {
         public string FullName { get; private set; } = default!;
         public string? NationalId { get; private set; } = default!;

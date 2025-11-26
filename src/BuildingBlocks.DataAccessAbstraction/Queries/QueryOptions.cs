@@ -1,9 +1,8 @@
-﻿using BuildingBlocks.Domain.Abstractions.Interfaces;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace BuildingBlocks.DataAccessAbstraction.Queries
 {
-    public class QueryOptions<T> where T : ISystemEntity
+    public class QueryOptions<T> where T : class
     {
         private int _pageSize = 20;
         private int _maxPageSize = 100;
@@ -34,6 +33,11 @@ namespace BuildingBlocks.DataAccessAbstraction.Queries
         public IQueryable<T> ApplySorting(IQueryable<T> query)
         {
             if (string.IsNullOrEmpty(SortBy)) return query;
+
+            // Check if the property exists (case-insensitive)
+            var hasProperty = typeof(T).GetProperties().Any(p => p.Name.Equals(SortBy, StringComparison.OrdinalIgnoreCase));
+
+            if (!hasProperty) return query;
 
             var parameter = Expression.Parameter(typeof(T), "x");
             var property = Expression.Property(parameter, SortBy);

@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Allowances
 {
-    public class Allowance : Entity<AllowanceId>
+    public class Allowance : AuditableEntity<AllowanceId>
     {
         public string Name { get; private set; } = default!;
         public decimal Cost { get; private set; } = default!;

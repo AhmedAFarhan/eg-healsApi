@@ -1,8 +1,8 @@
-﻿using EGHeals.Domain.Models.Shared.Users;
+﻿using EGHeals.Domain.Enums.Shared;
+using EGHeals.Domain.Models.Shared.Users;
 using EGHeals.Domain.ValueObjects.Shared.Users;
 using EGHeals.Infrastructure.Data;
 using EGHeals.Infrastructure.Extensions;
-using Mapster;
 using Microsoft.AspNetCore.Identity;
 
 namespace EGHeals.Infrastructure.Helpers
@@ -35,117 +35,130 @@ namespace EGHeals.Infrastructure.Helpers
 
                 /******************************* Defined Permissions *********************************/
 
+                #region PERMISSIONS
+
                 var superAdminPermissionId = PermissionId.Of(Guid.NewGuid());
-                var superAdminPermission = Permission.Create(superAdminPermissionId, "Super Admin Permission");
+                var superAdminPermission = Permission.Create(superAdminPermissionId, "Super Admin", UserActivity.SYSTEM, true);
 
-                var radiologyCenterAdminPermissionId = PermissionId.Of(Guid.NewGuid());
-                var radiologyCenterAdminPermission = Permission.Create(radiologyCenterAdminPermissionId, "Radiology Center Admin Permission");
+                var radiologyCenter_AdminPermissionId = PermissionId.Of(Guid.NewGuid());
+                var radiologyCenter_AdminPermission = Permission.Create(radiologyCenter_AdminPermissionId, "Radiology Center Admin", UserActivity.RADIOLOGY, true);
 
-                var permissionId_1 = PermissionId.Of(Guid.NewGuid());
-                var permission_1 = Permission.Create(permissionId_1, "Permission 1");
+                var radiologyCenter_AddEncounterPermissionId = PermissionId.Of(Guid.NewGuid());
+                var radiologyCenter_AddEncounterPermission = Permission.Create(radiologyCenter_AddEncounterPermissionId, "Add Encounter", UserActivity.RADIOLOGY);
 
-                var permissionId_2 = PermissionId.Of(Guid.NewGuid());
-                var permission_2 = Permission.Create(permissionId_2, "Permission 2");
+                var radiologyCenter_UpdateEncounterPermissionId = PermissionId.Of(Guid.NewGuid());
+                var radiologyCenter_UpdateEncounterPermission = Permission.Create(radiologyCenter_UpdateEncounterPermissionId, "Update Encounter", UserActivity.RADIOLOGY);
 
-                var permissionId_3 = PermissionId.Of(Guid.NewGuid());
-                var permission_3 = Permission.Create(permissionId_3, "Permission 3");
+                var radiologyCenter_DeleteEncounterPermissionId = PermissionId.Of(Guid.NewGuid());
+                var radiologyCenter_DeleteEncounterPermission = Permission.Create(radiologyCenter_DeleteEncounterPermissionId, "Delete Encounter", UserActivity.RADIOLOGY);
 
-                var permissionId_4 = PermissionId.Of(Guid.NewGuid());
-                var permission_4 = Permission.Create(permissionId_4, "Permission 4");
+                var radiologyCenter_ReadEncountersPermissionId = PermissionId.Of(Guid.NewGuid());
+                var radiologyCenter_ReadEncountersPermission = Permission.Create(radiologyCenter_ReadEncountersPermissionId, "Read Encounters", UserActivity.RADIOLOGY);
 
-                var permissionId_5 = PermissionId.Of(Guid.NewGuid());
-                var permission_5 = Permission.Create(permissionId_5, "Permission 5");
+                #endregion
 
-                var permissionId_6 = PermissionId.Of(Guid.NewGuid());
-                var permission_6 = Permission.Create(permissionId_6, "Permission 6");
+                #region TENANTS
 
+                var superAdminTenantId = TenantId.Of(Guid.NewGuid());
+                var superAdminTenant = Tenant.Create(superAdminTenantId, "98741258963258", Gender.MALE, UserActivity.SYSTEM, "some description");
 
-                /******************************* Defined Roles and assign permissions to it *********************************/
+                var radiologyCenetrTenant1Id = TenantId.Of(Guid.NewGuid());
+                var radiologyCenetrTenant1 = Tenant.Create(radiologyCenetrTenant1Id, "12345678912365", Gender.MALE, UserActivity.RADIOLOGY, "some description");
+
+                #endregion
+
+                #region ROLES
 
                 var superAdminRoleId = RoleId.Of(Guid.NewGuid());
-                var superAdminRole = Role.Create(superAdminRoleId, "SuperAdmin", null, true);
+                var superAdminRole = Role.Create(superAdminRoleId, "Super Admin", true);
+                superAdminRole.TenantId = superAdminTenantId;
+                var superAdminRolePermission = superAdminRole.AddPermission(superAdminPermissionId);
+                superAdminRolePermission.TenantId = superAdminTenantId;
 
-                superAdminRole.AddPermission(superAdminPermissionId);
+                var radiologyCenter_AdminRoleId = RoleId.Of(Guid.NewGuid());
+                var radiologyCenter_AdminRole = Role.Create(radiologyCenter_AdminRoleId, "Radiology Center Admin Role");
+                radiologyCenter_AdminRole.TenantId = radiologyCenetrTenant1Id;
+                var radiologyCenter_AdminRolePermission = radiologyCenter_AdminRole.AddPermission(radiologyCenter_AdminPermissionId);
+                radiologyCenter_AdminRolePermission.TenantId = radiologyCenetrTenant1Id;
 
-                var radiologyCenterAdminRoleId = RoleId.Of(Guid.NewGuid());
-                var radiologyCenterAdminRole = Role.Create(radiologyCenterAdminRoleId, "RadiologyCenterAdmin", UserActivity.RADIOLOGY, true);
+                var radiologyCenter_ReceptionistRoleId = RoleId.Of(Guid.NewGuid());
+                var radiologyCenter_ReceptionistRole = Role.Create(radiologyCenter_ReceptionistRoleId, "Receptionist");
+                radiologyCenter_ReceptionistRole.TenantId = radiologyCenetrTenant1Id;
 
-                radiologyCenterAdminRole.AddPermission(radiologyCenterAdminPermissionId);
+                var radiologyCenter_ReceptionistRoleAddPermission = radiologyCenter_ReceptionistRole.AddPermission(radiologyCenter_AddEncounterPermissionId);
+                radiologyCenter_ReceptionistRoleAddPermission.TenantId = radiologyCenetrTenant1Id;
 
-                var radiologyCenterReceptionistRoleId = RoleId.Of(Guid.NewGuid());
-                var radiologyCenterReceptionistRole = Role.Create(radiologyCenterReceptionistRoleId, "Receptionist", UserActivity.RADIOLOGY, false);
+                var radiologyCenter_ReceptionistRoleUpdatePermission = radiologyCenter_ReceptionistRole.AddPermission(radiologyCenter_UpdateEncounterPermissionId);
+                radiologyCenter_ReceptionistRoleUpdatePermission.TenantId = radiologyCenetrTenant1Id;
 
-                radiologyCenterReceptionistRole.AddPermission(permissionId_1);
-                radiologyCenterReceptionistRole.AddPermission(permissionId_2);
+                var radiologyCenter_ReceptionistRoleDeletePermission = radiologyCenter_ReceptionistRole.AddPermission(radiologyCenter_DeleteEncounterPermissionId);
+                radiologyCenter_ReceptionistRoleDeletePermission.TenantId = radiologyCenetrTenant1Id;
 
-                var radiologyCenterRadiologistRoleId = RoleId.Of(Guid.NewGuid());
-                var radiologyCenterRadiologistRole = Role.Create(radiologyCenterRadiologistRoleId, "Radiologist", UserActivity.RADIOLOGY, false);
+                var radiologyCenter_ReceptionistRoleReadPermission = radiologyCenter_ReceptionistRole.AddPermission(radiologyCenter_ReadEncountersPermissionId);
+                radiologyCenter_ReceptionistRoleReadPermission.TenantId = radiologyCenetrTenant1Id;
 
-                radiologyCenterRadiologistRole.AddPermission(permissionId_3);
-                radiologyCenterRadiologistRole.AddPermission(permissionId_4);
+                #endregion
 
-                var radiologyCenterAccountantRoleId = RoleId.Of(Guid.NewGuid());
-                var radiologyCenterAccountantRole = Role.Create(radiologyCenterAccountantRoleId, "Accountant", UserActivity.RADIOLOGY, false);
-
-                radiologyCenterAccountantRole.AddPermission(permissionId_5);
-                radiologyCenterAccountantRole.AddPermission(permissionId_6);
-
-
-                /******************************* Defined Domain Users *********************************/
+                #region USERS
 
                 var superAdminUserId = UserId.Of(Guid.NewGuid());
-                var superAdminUser = User.Create(superAdminUserId, "first name", "last name", "super@super.com", "01099315900");
-                superAdminUser.OwnershipId = superAdminUserId;
+                var superAdminUser = User.Create(superAdminUserId, "Super Admin", "Super Admin", "super@super.com", "01099315900");
+                superAdminUser.TenantId = superAdminTenantId;
+                var superAdminUserRole = superAdminUser.AddRole(superAdminRoleId);
+                superAdminUserRole.TenantId = superAdminTenantId;
 
-                var radiologyCenterAdminUserId = UserId.Of(Guid.NewGuid());
-                var radiologyCenterAdminUser = User.Create(radiologyCenterAdminUserId, "first name", "last name", "radiology@radiology.com", "01096513165");
-                radiologyCenterAdminUser.OwnershipId = radiologyCenterAdminUserId;
+                var radiologyCenter_AdminUser1Id = UserId.Of(Guid.NewGuid());
+                var radiologyCenter_AdminUser1 = User.Create(radiologyCenter_AdminUser1Id, "Radiology Admin 1", "Radiology Admin 1", "radiology1@radiology.com", "01099315900");
+                radiologyCenter_AdminUser1.TenantId = radiologyCenetrTenant1Id;
+                var radiologyCenter_Admin1UserRole = radiologyCenter_AdminUser1.AddRole(radiologyCenter_AdminRoleId);
+                radiologyCenter_Admin1UserRole.TenantId = radiologyCenetrTenant1Id;
 
-                var radiologyCenterSubUserId = UserId.Of(Guid.NewGuid());
-                var radiologyCenterSubUser = User.Create(radiologyCenterSubUserId, "first name", "last name", "sub@sub.com", "01093266551");
-                radiologyCenterSubUser.OwnershipId = radiologyCenterAdminUserId;
+                var radiologyCenter_Radiology1_SubUser1Id = UserId.Of(Guid.NewGuid());
+                var radiologyCenter_Radiology1_SubUser1 = User.Create(radiologyCenter_Radiology1_SubUser1Id, "first name", "last name", "sub1@sub.com", "01017472751");
+                radiologyCenter_Radiology1_SubUser1.TenantId = radiologyCenetrTenant1Id;
+                var radiologyCenter_ReceptionistUser1Role = radiologyCenter_Radiology1_SubUser1.AddRole(radiologyCenter_ReceptionistRoleId);
+                radiologyCenter_ReceptionistUser1Role.TenantId = radiologyCenetrTenant1Id;
 
-                /******************************* Assign Role Permissions To Users *********************************/
-
-                var superAdminUserRolePermission = superAdminUser.AddPermission(superAdminPermissionId);
-                superAdminUserRolePermission.OwnershipId = superAdminUserId;
-
-                var radiologyCenterAdminUserRolePermission = radiologyCenterAdminUser.AddPermission(radiologyCenterAdminPermissionId);
-                radiologyCenterAdminUserRolePermission.OwnershipId = radiologyCenterAdminUserId;
-
-                var radiologyCenterSubUserRolePermission_1 = radiologyCenterSubUser.AddPermission(permissionId_1);
-                radiologyCenterSubUserRolePermission_1.OwnershipId = radiologyCenterAdminUserId;
-                var radiologyCenterSubUserRolePermission_2 = radiologyCenterSubUser.AddPermission(permissionId_2);
-                radiologyCenterSubUserRolePermission_2.OwnershipId = radiologyCenterAdminUserId;
+                var radiologyCenter_Radiology1_SubUser2Id = UserId.Of(Guid.NewGuid());
+                var radiologyCenter_Radiology1_SubUser2 = User.Create(radiologyCenter_Radiology1_SubUser2Id, "first name", "last name", "sub2@sub.com", "01017472752");
+                radiologyCenter_Radiology1_SubUser2.TenantId = radiologyCenetrTenant1Id;
+                var radiologyCenter_ReceptionistUser2Role = radiologyCenter_Radiology1_SubUser2.AddRole(radiologyCenter_ReceptionistRoleId);
+                radiologyCenter_ReceptionistUser2Role.TenantId = radiologyCenetrTenant1Id;
 
                 /******************************* Defined Identity Users *********************************/
 
                 var IdentitySuperAdminUser = superAdminUser.ToIdentityUser();
 
-                var identityRadiologyCenterAdminUser = radiologyCenterAdminUser.ToIdentityUser();
+                var identityRadiologyCenter_AdminUser1 = radiologyCenter_AdminUser1.ToIdentityUser();
 
-                var identityRadiologyCenterSubUser = radiologyCenterSubUser.ToIdentityUser();
+                var identityRadiologyCenter_Radiology1_SubUser1 = radiologyCenter_Radiology1_SubUser1.ToIdentityUser();
 
-                /******************************* Inserting Data Into DataBase *********************************/
+                var identityRadiologyCenter_Radiology1_SubUser2 = radiologyCenter_Radiology1_SubUser2.ToIdentityUser();
+
+                #endregion
+
+                #region INSERTING
 
                 await dbContext.Permissions.AddAsync(superAdminPermission);
-                await dbContext.Permissions.AddAsync(radiologyCenterAdminPermission);
-                await dbContext.Permissions.AddAsync(permission_1);
-                await dbContext.Permissions.AddAsync(permission_2);
-                await dbContext.Permissions.AddAsync(permission_3);
-                await dbContext.Permissions.AddAsync(permission_4);
-                await dbContext.Permissions.AddAsync(permission_5);
-                await dbContext.Permissions.AddAsync(permission_6);
+                await dbContext.Permissions.AddAsync(radiologyCenter_AdminPermission);
+                await dbContext.Permissions.AddAsync(radiologyCenter_AddEncounterPermission);
+                await dbContext.Permissions.AddAsync(radiologyCenter_UpdateEncounterPermission);
+                await dbContext.Permissions.AddAsync(radiologyCenter_ReadEncountersPermission);
+                await dbContext.Permissions.AddAsync(radiologyCenter_DeleteEncounterPermission);
 
                 await dbContext.Roles.AddAsync(superAdminRole);
-                await dbContext.Roles.AddAsync(radiologyCenterAdminRole);
-                await dbContext.Roles.AddAsync(radiologyCenterReceptionistRole);
-                await dbContext.Roles.AddAsync(radiologyCenterRadiologistRole);
-                await dbContext.Roles.AddAsync(radiologyCenterAccountantRole);
+                await dbContext.Roles.AddAsync(radiologyCenter_AdminRole);
+                await dbContext.Roles.AddAsync(radiologyCenter_ReceptionistRole);
+
+                await dbContext.Tenants.AddAsync(superAdminTenant);
+                await dbContext.Tenants.AddAsync(radiologyCenetrTenant1);
 
                 await userManager.CreateAsync(IdentitySuperAdminUser, "010011012");
-                await userManager.CreateAsync(identityRadiologyCenterAdminUser, "011010012");
-                await userManager.CreateAsync(identityRadiologyCenterSubUser, "012011010");
+                await userManager.CreateAsync(identityRadiologyCenter_AdminUser1, "011010012");
+                await userManager.CreateAsync(identityRadiologyCenter_Radiology1_SubUser1, "011010012");
+                await userManager.CreateAsync(identityRadiologyCenter_Radiology1_SubUser2, "012011010");
+
+                #endregion
 
                 await dbContext.SaveChangesAsync();
 

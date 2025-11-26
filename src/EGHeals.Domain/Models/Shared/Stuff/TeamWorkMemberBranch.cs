@@ -3,7 +3,7 @@ using EGHeals.Domain.ValueObjects.Shared.Stuff;
 
 namespace EGHeals.Domain.Models.Shared.Stuff
 {
-    public class TeamWorkMemberBranch : Entity<TeamWorkMemberBranchId>
+    public class TeamWorkMemberBranch : AuditableEntity<TeamWorkMemberBranchId>
     {
         internal TeamWorkMemberBranch(TeamWorkMemberId teamWorkMemberId, BranchId branchId)
         {

@@ -7,8 +7,12 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
     {
         public void Configure(EntityTypeBuilder<RolePermission> builder)
         {
+            builder.ToTable("RolesPermissions", "Shared");
+
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasConversion(id => id.Value, dbId => RolePermissionId.Of(dbId));
+
+            builder.Property(x => x.TenantId).HasConversion(id => id.Value, dbId => TenantId.Of(dbId));
 
             builder.Property(x => x.RoleId).HasConversion(id => id.Value, dbId => RoleId.Of(dbId));
 
@@ -19,6 +23,7 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
             /*************************** Relationships ****************************/
 
             //builder.HasOne<Permission>().WithMany().HasForeignKey(x => x.PermissionId).OnDelete(DeleteBehavior.Restrict); //incase we don't have navigation property
+
             builder.HasOne(r => r.Permission).WithMany().HasForeignKey(x => x.PermissionId).OnDelete(DeleteBehavior.Restrict);
 
         }

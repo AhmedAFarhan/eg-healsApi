@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Patients
 {
-    public class Guardian : Entity<GuardianId>
+    public class Guardian : AuditableEntity<GuardianId>
     {
         public string FullName { get; private set; } = default!;
         public string Mobile { get; private set; } = default!;

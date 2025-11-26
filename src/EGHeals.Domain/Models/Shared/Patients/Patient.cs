@@ -1,8 +1,9 @@
-﻿using EGHeals.Domain.ValueObjects.Shared.Patients;
+﻿using EGHeals.Domain.Enums.Shared;
+using EGHeals.Domain.ValueObjects.Shared.Patients;
 
 namespace EGHeals.Domain.Models.Shared.Patients
 {
-    public class Patient : Entity<PatientId>
+    public class Patient : AuditableEntity<PatientId>
     {
         public string FullName { get; private set; } = default!;
         public string? NationalId { get; private set; } = default!;

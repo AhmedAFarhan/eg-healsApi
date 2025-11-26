@@ -1,9 +1,10 @@
-﻿using EGHeals.Application.Dtos.Users.Responses;
+﻿
+using EGHeals.Domain.Models.Shared.Users;
 
 namespace EGHeals.Application.Services.Jwt
 {
     public interface IJwtService
     {
-        public string GenerateToken(UserResponseDto user);
+        public string GenerateToken(User user);
     }
 }

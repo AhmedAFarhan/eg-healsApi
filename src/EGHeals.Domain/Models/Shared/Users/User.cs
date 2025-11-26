@@ -3,12 +3,12 @@ using EGHeals.Domain.ValueObjects.Shared.Users;
 
 namespace EGHeals.Domain.Models.Shared.Users
 {
-    public class User : Aggregate<UserId>
+    public class User : AuditableAggregate<UserId>
     {
-        private readonly List<UserPermission> _userPermissions = new();
+        private readonly List<UserRole> _userRoles = new();
         private readonly List<UserClientApplication> _userClientApplications = new();
 
-        public IReadOnlyList<UserPermission> UserPermissions => _userPermissions.AsReadOnly();
+        public IReadOnlyList<UserRole> UserRoles => _userRoles.AsReadOnly();
         public IReadOnlyList<UserClientApplication> UserClientApplications => _userClientApplications.AsReadOnly();
 
         public string FirstName { get; set; } = default!;
@@ -23,15 +23,17 @@ namespace EGHeals.Domain.Models.Shared.Users
         public bool IsActive { get; set; } = true;
         public string? RawPassword { get; private set; }
 
+        public Tenant Tenant { get; set; } = default!;
+
         /***************************************** Domain Business *****************************************/
 
         public static User Create(UserId id,
-                                 string firstName,
-                                 string lastName,
-                                 string? email,
-                                 string? rawPassword = null,
-                                 string? phoneNumber = null,
-                                 bool isActive = true)
+                                  string firstName,
+                                  string lastName,
+                                  string? email,
+                                  string? rawPassword = null,
+                                  string? phoneNumber = null,
+                                  bool isActive = true)
         {
             //Domain model validation
             if (rawPassword is not null)
@@ -78,18 +80,18 @@ namespace EGHeals.Domain.Models.Shared.Users
             PhoneNumber = phoneNumber;
         }
 
-        public UserPermission AddPermission(PermissionId permissionId)
+        public UserRole AddRole(RoleId roleId)
         {
-            var userPermission = new UserPermission(Id, permissionId);
-            _userPermissions.Add(userPermission);
-            return userPermission;
+            var userRole = new UserRole(Id, roleId);
+            _userRoles.Add(userRole);
+            return userRole;
         }
-        public void RemovePermission(PermissionId permissionId)
+        public void RemoveRole(RoleId roleId)
         {
-            var userPermission = _userPermissions.FirstOrDefault(x => x.PermissionId == permissionId);
-            if (userPermission is not null)
+            var userRole = _userRoles.FirstOrDefault(x => x.RoleId == roleId);
+            if (userRole is not null)
             {
-                _userPermissions.Remove(userPermission);
+                _userRoles.Remove(userRole);
             }
         }
 
@@ -211,7 +213,7 @@ namespace EGHeals.Domain.Models.Shared.Users
 
         /***************************************** Identity Helper Methods *****************************************/
 
-        public void AddPermissionsRange(List<UserPermission> permissions) => _userPermissions.AddRange(permissions);
+        public void AddRolesRange(List<UserRole> roles) => _userRoles.AddRange(roles);
         public void AddClientAppsRange(List<UserClientApplication> clientApps) => _userClientApplications.AddRange(clientApps);
 
     }

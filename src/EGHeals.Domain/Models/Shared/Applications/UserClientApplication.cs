@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Applications
 {
-    public class UserClientApplication : SystemEntity<UserClientApplicationId>
+    public class UserClientApplication : BaseAuditableEntity<UserClientApplicationId>
     {
         public UserClientApplication(UserId userId, ClientApplicationId clientApplicationId)
         {

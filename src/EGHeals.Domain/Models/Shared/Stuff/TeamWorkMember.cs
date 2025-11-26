@@ -1,10 +1,12 @@
-﻿using EGHeals.Domain.ValueObjects.Shared.Allowances;
+﻿using EGHeals.Domain.Enums.RadiologyCenter;
+using EGHeals.Domain.Enums.Shared;
+using EGHeals.Domain.ValueObjects.Shared.Allowances;
 using EGHeals.Domain.ValueObjects.Shared.Owners;
 using EGHeals.Domain.ValueObjects.Shared.Stuff;
 
 namespace EGHeals.Domain.Models.Shared.Stuff
 {
-    public class TeamWorkMember : Aggregate<TeamWorkMemberId>
+    public class TeamWorkMember : AuditableAggregate<TeamWorkMemberId>
     {
         private readonly List<TeamWorkMemberAllowance> _allowances = new();
         private readonly List<TeamWorkMemberBranch> _branches = new();
@@ -14,12 +16,12 @@ namespace EGHeals.Domain.Models.Shared.Stuff
         public string FullName { get; private set; } = default!;
         public string? NationalId { get; private set; } = default!;
         public string Mobile { get; private set; } = default!;
-        public StuffTitle StuffTitle { get; private set; } = StuffTitle.UNKNOWN;
+        public RadiologyCenter_StuffTitle StuffTitle { get; private set; } = RadiologyCenter_StuffTitle.UNKNOWN;
         public StuffSalaryType StuffSalaryType { get; private set; } = StuffSalaryType.DAILY;
         public decimal Salary { get; private set; }
-        public UserId? UserMemberId { get; private set; } = default!;
+        public TenantId? UserMemberId { get; private set; } = default!;
 
-        public static TeamWorkMember Create(string fullName, string? nationalId, string mobile, StuffTitle stuffTitle, StuffSalaryType stuffSalaryType, decimal salary, UserId? userMemberId)
+        public static TeamWorkMember Create(string fullName, string? nationalId, string mobile, RadiologyCenter_StuffTitle stuffTitle, StuffSalaryType stuffSalaryType, decimal salary, TenantId? userMemberId)
         {
             Validation(fullName, nationalId, mobile, stuffTitle, stuffSalaryType, salary);
 
@@ -37,7 +39,7 @@ namespace EGHeals.Domain.Models.Shared.Stuff
 
             return teamWorkMember;
         }
-        public void Update(string fullName, string? nationalId, string mobile, StuffTitle stuffTitle, StuffSalaryType stuffSalaryType, decimal salary, UserId? userMemberId)
+        public void Update(string fullName, string? nationalId, string mobile, RadiologyCenter_StuffTitle stuffTitle, StuffSalaryType stuffSalaryType, decimal salary, TenantId? userMemberId)
         {
             Validation(fullName, nationalId, mobile, stuffTitle, stuffSalaryType, salary);
 
@@ -95,7 +97,7 @@ namespace EGHeals.Domain.Models.Shared.Stuff
             }
         }
 
-        private static void Validation(string fullName, string? nationalId, string mobile, StuffTitle stuffTitle, StuffSalaryType stuffSalaryType, decimal salary)
+        private static void Validation(string fullName, string? nationalId, string mobile, RadiologyCenter_StuffTitle stuffTitle, StuffSalaryType stuffSalaryType, decimal salary)
         {
             ArgumentException.ThrowIfNullOrEmpty(fullName);
             ArgumentException.ThrowIfNullOrWhiteSpace(fullName);

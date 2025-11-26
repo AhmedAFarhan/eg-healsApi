@@ -2,6 +2,7 @@ using BuildingBlocks.Exceptions.Handler;
 using EGHeals.Application;
 using EGHeals.Infrastructure;
 using EGHeals.Infrastructure.Helpers;
+
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -88,7 +89,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.UseExceptionHandler(options => { });
