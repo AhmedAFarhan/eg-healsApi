@@ -21,11 +21,11 @@ namespace EGHeals.Infrastructure.IdentityDomains
         /*************************************** Auditable Entity Properties **********************************************/
 
         public Guid CreatedBy { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         public Guid? LastModifiedBy { get; set; }
-        public DateTime? LastModifiedAt { get; set; }
+        public DateTimeOffset? LastModifiedAt { get; set; }
         public Guid? DeletedBy { get; set; }
-        public DateTime? DeletedAt { get; set; }
+        public DateTimeOffset? DeletedAt { get; set; }
         public bool IsDeleted { get; set; }
         public TenantId TenantId { get; set; } = default!;
         public Tenant Tenant { get; set; } = default!;

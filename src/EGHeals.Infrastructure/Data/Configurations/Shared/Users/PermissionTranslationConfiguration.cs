@@ -8,7 +8,7 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
     {
         public void Configure(EntityTypeBuilder<PermissionTranslation> builder)
         {
-            builder.ToTable("PermissionsTranslations", "Shared");
+            builder.ToTable("PermissionTranslations", "Shared");
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasConversion(id => id.Value, dbId => PermissionTranslationId.Of(dbId));

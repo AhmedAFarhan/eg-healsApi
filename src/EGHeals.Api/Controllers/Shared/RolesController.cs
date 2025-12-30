@@ -10,7 +10,7 @@ namespace EGHeals.Api.Controllers.Shared
     [Route("api/[controller]")]
     public class RolesController(ISender sender) : ControllerBase
     {
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetAllAsync([FromBody] QueryOptions<Role> query)
         {
             var command = new GetRolesByTenantQuery(query);

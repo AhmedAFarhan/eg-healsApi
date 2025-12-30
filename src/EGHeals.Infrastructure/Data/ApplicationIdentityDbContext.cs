@@ -18,12 +18,12 @@ namespace EGHeals.Infrastructure.Data
         public DbSet<Tenant> Tenants => Set<Tenant>();
         public DbSet<Permission> Permissions => Set<Permission>();
         public DbSet<Role> Roles => Set<Role>();
-        public DbSet<RolePermission> RolesPermissions => Set<RolePermission>();
-        public DbSet<UserRole> UsersRoles => Set<UserRole>();
-        public DbSet<PermissionTranslation> PermissionsTranslations => Set<PermissionTranslation>();
+        public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+        public DbSet<UserRole> UserRoles => Set<UserRole>();
+        public DbSet<PermissionTranslation> PermissionTranslations => Set<PermissionTranslation>();
 
-        //public DbSet<RadiologyCenter_Examination> RadiologyExaminations => Set<RadiologyCenter_Examination>();
-        //public DbSet<RadiologyCenter_ExaminationCost> RadiologyExaminationsCosts => Set<RadiologyCenter_ExaminationCost>();
+        public DbSet<RadiologyCenter_Examination> RadiologyCenter_Examinations => Set<RadiologyCenter_Examination>();
+        public DbSet<RadiologyCenter_ExaminationCost> RadiologyCenter_ExaminationCost => Set<RadiologyCenter_ExaminationCost>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

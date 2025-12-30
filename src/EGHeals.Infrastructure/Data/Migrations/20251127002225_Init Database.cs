@@ -14,23 +14,45 @@ namespace EGHeals.Infrastructure.Data.Migrations
             migrationBuilder.EnsureSchema(
                 name: "Shared");
 
+            migrationBuilder.EnsureSchema(
+                name: "RadiologyCenter");
+
             migrationBuilder.CreateTable(
                 name: "ClientApplications",
+                schema: "Shared",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Client = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    ClientId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    ClientSecretHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Platform = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "WEB"),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClientApplications", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Examinations",
+                schema: "RadiologyCenter",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Device = table.Column<string>(type: "nvarchar(450)", nullable: false, defaultValue: "DEVICE1"),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Examinations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,11 +80,11 @@ namespace EGHeals.Infrastructure.Data.Migrations
                     Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -82,11 +104,11 @@ namespace EGHeals.Infrastructure.Data.Migrations
                     UserActivity = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "SYSTEM"),
                     ActivityDescription = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -95,7 +117,36 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PermissionsTranslations",
+                name: "ExaminationCosts",
+                schema: "RadiologyCenter",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ExaminationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExaminationCosts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExaminationCosts_Examinations_ExaminationId",
+                        column: x => x.ExaminationId,
+                        principalSchema: "RadiologyCenter",
+                        principalTable: "Examinations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PermissionTranslations",
                 schema: "Shared",
                 columns: table => new
                 {
@@ -106,9 +157,9 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PermissionsTranslations", x => x.Id);
+                    table.PrimaryKey("PK_PermissionTranslations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PermissionsTranslations_Permissions_PermissionId",
+                        name: "FK_PermissionTranslations_Permissions_PermissionId",
                         column: x => x.PermissionId,
                         principalSchema: "Shared",
                         principalTable: "Permissions",
@@ -117,7 +168,7 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RolesPermissions",
+                name: "RolePermissions",
                 schema: "Shared",
                 columns: table => new
                 {
@@ -126,26 +177,26 @@ namespace EGHeals.Infrastructure.Data.Migrations
                     PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RolesPermissions", x => x.Id);
+                    table.PrimaryKey("PK_RolePermissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RolesPermissions_Permissions_PermissionId",
+                        name: "FK_RolePermissions_Permissions_PermissionId",
                         column: x => x.PermissionId,
                         principalSchema: "Shared",
                         principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_RolesPermissions_Roles_RoleId",
+                        name: "FK_RolePermissions_Roles_RoleId",
                         column: x => x.RoleId,
                         principalSchema: "Shared",
                         principalTable: "Roles",
@@ -163,11 +214,11 @@ namespace EGHeals.Infrastructure.Data.Migrations
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
@@ -263,18 +314,12 @@ namespace EGHeals.Infrastructure.Data.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserClientApplications",
+                schema: "Shared",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    ClientApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -289,7 +334,7 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsersRoles",
+                name: "UserRoles",
                 schema: "Shared",
                 columns: table => new
                 {
@@ -297,26 +342,26 @@ namespace EGHeals.Infrastructure.Data.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsersRoles", x => x.Id);
+                    table.PrimaryKey("PK_UserRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UsersRoles_Roles_RoleId",
+                        name: "FK_UserRoles_Roles_RoleId",
                         column: x => x.RoleId,
                         principalSchema: "Shared",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_UsersRoles_Users_UserId",
+                        name: "FK_UserRoles_Users_UserId",
                         column: x => x.UserId,
                         principalSchema: "Shared",
                         principalTable: "Users",
@@ -335,9 +380,24 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientApplications_Client",
+                name: "IX_ClientApplications_ClientId",
+                schema: "Shared",
                 table: "ClientApplications",
-                column: "Client",
+                column: "ClientId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExaminationCosts_ExaminationId_TenantId",
+                schema: "RadiologyCenter",
+                table: "ExaminationCosts",
+                columns: new[] { "ExaminationId", "TenantId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Examinations_Name_Device",
+                schema: "RadiologyCenter",
+                table: "Examinations",
+                columns: new[] { "Name", "Device" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -348,10 +408,23 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_PermissionsTranslations_PermissionId_LanguageCode",
+                name: "IX_PermissionTranslations_PermissionId_LanguageCode",
                 schema: "Shared",
-                table: "PermissionsTranslations",
+                table: "PermissionTranslations",
                 columns: new[] { "PermissionId", "LanguageCode" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_PermissionId",
+                schema: "Shared",
+                table: "RolePermissions",
+                column: "PermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_RoleId_PermissionId",
+                schema: "Shared",
+                table: "RolePermissions",
+                columns: new[] { "RoleId", "PermissionId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -362,28 +435,30 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolesPermissions_PermissionId",
-                schema: "Shared",
-                table: "RolesPermissions",
-                column: "PermissionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RolesPermissions_RoleId_PermissionId",
-                schema: "Shared",
-                table: "RolesPermissions",
-                columns: new[] { "RoleId", "PermissionId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserClientApplications_ClientApplicationId_UserId",
+                schema: "Shared",
                 table: "UserClientApplications",
                 columns: new[] { "ClientApplicationId", "UserId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClientApplications_UserId",
+                schema: "Shared",
                 table: "UserClientApplications",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_RoleId",
+                schema: "Shared",
+                table: "UserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_UserId_RoleId",
+                schema: "Shared",
+                table: "UserRoles",
+                columns: new[] { "UserId", "RoleId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -428,19 +503,6 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 table: "Users",
                 column: "NormalizedUserName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UsersRoles_RoleId",
-                schema: "Shared",
-                table: "UsersRoles",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UsersRoles_UserId_RoleId",
-                schema: "Shared",
-                table: "UsersRoles",
-                columns: new[] { "UserId", "RoleId" },
-                unique: true);
         }
 
         /// <inheritdoc />
@@ -456,22 +518,32 @@ namespace EGHeals.Infrastructure.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ClientApplications");
-
-            migrationBuilder.DropTable(
-                name: "PermissionsTranslations",
+                name: "ClientApplications",
                 schema: "Shared");
 
             migrationBuilder.DropTable(
-                name: "RolesPermissions",
+                name: "ExaminationCosts",
+                schema: "RadiologyCenter");
+
+            migrationBuilder.DropTable(
+                name: "PermissionTranslations",
                 schema: "Shared");
 
             migrationBuilder.DropTable(
-                name: "UserClientApplications");
+                name: "RolePermissions",
+                schema: "Shared");
 
             migrationBuilder.DropTable(
-                name: "UsersRoles",
+                name: "UserClientApplications",
                 schema: "Shared");
+
+            migrationBuilder.DropTable(
+                name: "UserRoles",
+                schema: "Shared");
+
+            migrationBuilder.DropTable(
+                name: "Examinations",
+                schema: "RadiologyCenter");
 
             migrationBuilder.DropTable(
                 name: "Permissions",

@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Configurations\RadiologyCenter\" />
     <Folder Include="Data\Migrations\" />
     <Folder Include="Repositories\Shared\Permissions\" />
     <Folder Include="Services\RadiologyCenter\Examinations\" />

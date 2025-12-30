@@ -98,6 +98,7 @@ namespace EGHeals.Infrastructure.Extensions
             appUser.TenantId = user.TenantId;
             appUser.Tenant = user.Tenant;
             appUser.PhoneNumber = user.PhoneNumber;
+            appUser.IsActive = user.IsActive;
 
             // Map permissions
             if (user.UserRoles is not null && user.UserRoles.Count > 0)

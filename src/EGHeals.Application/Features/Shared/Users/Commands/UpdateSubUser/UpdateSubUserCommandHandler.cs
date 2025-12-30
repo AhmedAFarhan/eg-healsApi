@@ -1,7 +1,5 @@
-﻿using BuildingBlocks.Responses.Factories;
-using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
+﻿using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
 using EGHeals.Domain.ValueObjects.Shared.Users;
-using System.Linq;
 
 namespace EGHeals.Application.Features.Shared.Users.Commands.UpdateSubUser
 {

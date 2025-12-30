@@ -1,9 +1,10 @@
-﻿using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
+﻿using BuildingBlocks.DataAccessAbstraction.Services;
+using EGHeals.Application.Repositories.Users.EGHeals.Application.Contracts.Users;
 using EGHeals.Domain.ValueObjects.Shared.Users;
 
 namespace EGHeals.Application.Features.Shared.Users.Commands.Delete
 {
-    public class DeleteUserCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<DeleteUserCommand, DeleteUserResult>
+    public class DeleteUserCommandHandler(IUnitOfWork unitOfWork, IUserContextService userContext) : ICommandHandler<DeleteUserCommand, DeleteUserResult>
     {
         public async Task<DeleteUserResult> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
         {
@@ -18,17 +19,20 @@ namespace EGHeals.Application.Features.Shared.Users.Commands.Delete
                 throw new BadRequestException("User not found.");
             }
 
-            // 3 - Delete current user
-            var deletedUser = await repo.SoftDeleteAsync(existingUser, cancellationToken);
+            // 3 - Soft Delete current user and then update
+            existingUser.Delete(userContext.UserId, DateTimeOffset.UtcNow);
+
+            // 4 - Update user
+            var deletedUser = await repo.UpdateAsync(existingUser);
             if (deletedUser is null)
             {
-                throw new BadRequestException("User not found.");
+                throw new BadRequestException("User not found");
             }
 
-            // 4 - Save changes
+            // 5 - Save changes
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 5 - Build and return the response
+            // 6 - Build and return the response
             var response = EGResponseFactory.Success(deletedUser.Id.Value, "Success operation.");
 
             return new DeleteUserResult(response);

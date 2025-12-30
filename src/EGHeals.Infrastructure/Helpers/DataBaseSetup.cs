@@ -1,4 +1,5 @@
 ﻿using EGHeals.Domain.Enums.Shared;
+using EGHeals.Domain.Models.Shared.Applications;
 using EGHeals.Domain.Models.Shared.Users;
 using EGHeals.Domain.ValueObjects.Shared.Users;
 using EGHeals.Infrastructure.Data;
@@ -34,6 +35,28 @@ namespace EGHeals.Infrastructure.Helpers
                 dbContext.IsSeeding = true;
 
                 /******************************* Defined Permissions *********************************/
+
+                #region CLIENT APPLICATIONS
+
+                var hasher = new PasswordHasher<ClientApplication>();
+
+                var webCleintAppId = ClientApplicationId.Of(Guid.NewGuid());
+                var webCleintApp = ClientApplication.Create(webCleintAppId, "web-app", Platform.WEB);
+                webCleintApp.SetClientSecretHash(hasher.HashPassword(webCleintApp, "Dx7!kL2@pM9#qW4s$Zy8"));
+
+                var desktopCleintAppId = ClientApplicationId.Of(Guid.NewGuid());
+                var desktopCleintApp = ClientApplication.Create(desktopCleintAppId, "desktop-app", Platform.DESKTOP);
+                desktopCleintApp.SetClientSecretHash(hasher.HashPassword(desktopCleintApp, "Qv3#Nf6!Rb8@xT1$Jp5"));
+
+                var tenantMobileCleintAppId = ClientApplicationId.Of(Guid.NewGuid());
+                var tenantMobileCleintApp = ClientApplication.Create(tenantMobileCleintAppId, "tenant-mobile-app", Platform.TENANT_MOBILE);
+                tenantMobileCleintApp.SetClientSecretHash(hasher.HashPassword(tenantMobileCleintApp, "Lp9$Wq2!Vm7#yK3@Fd6"));
+
+                var patientMobileCleintAppId = ClientApplicationId.Of(Guid.NewGuid());
+                var patientMobileCleintApp = ClientApplication.Create(patientMobileCleintAppId, "pateint-mobile-app", Platform.PATIENT_MOBILE);
+                patientMobileCleintApp.SetClientSecretHash(hasher.HashPassword(patientMobileCleintApp, "Hs5@Rt8$Gk1!Bx4#Pz7"));
+
+                #endregion
 
                 #region PERMISSIONS
 
@@ -112,6 +135,9 @@ namespace EGHeals.Infrastructure.Helpers
                 radiologyCenter_AdminUser1.TenantId = radiologyCenetrTenant1Id;
                 var radiologyCenter_Admin1UserRole = radiologyCenter_AdminUser1.AddRole(radiologyCenter_AdminRoleId);
                 radiologyCenter_Admin1UserRole.TenantId = radiologyCenetrTenant1Id;
+                radiologyCenter_AdminUser1.AddUserClientApp(webCleintAppId);
+                radiologyCenter_AdminUser1.AddUserClientApp(desktopCleintAppId);
+                radiologyCenter_AdminUser1.AddUserClientApp(tenantMobileCleintAppId);
 
                 var radiologyCenter_Radiology1_SubUser1Id = UserId.Of(Guid.NewGuid());
                 var radiologyCenter_Radiology1_SubUser1 = User.Create(radiologyCenter_Radiology1_SubUser1Id, "first name", "last name", "sub1@sub.com", "01017472751");
@@ -138,6 +164,11 @@ namespace EGHeals.Infrastructure.Helpers
                 #endregion
 
                 #region INSERTING
+
+                await dbContext.ClientApplications.AddAsync(webCleintApp);
+                await dbContext.ClientApplications.AddAsync(desktopCleintApp);
+                await dbContext.ClientApplications.AddAsync(tenantMobileCleintApp);
+                await dbContext.ClientApplications.AddAsync(patientMobileCleintApp);
 
                 await dbContext.Permissions.AddAsync(superAdminPermission);
                 await dbContext.Permissions.AddAsync(radiologyCenter_AdminPermission);

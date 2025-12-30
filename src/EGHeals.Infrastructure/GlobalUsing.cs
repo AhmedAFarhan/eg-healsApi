@@ -4,3 +4,4 @@ global using BuildingBlocks.Domain.ValueObjects;
 global using EGHeals.Domain.Enums;
 global using BuildingBlocks.DataAccess.Repository;
 global using EGHeals.Infrastructure.IdentityDomains;
+global using BuildingBlocks.DataAccessAbstraction.Services;

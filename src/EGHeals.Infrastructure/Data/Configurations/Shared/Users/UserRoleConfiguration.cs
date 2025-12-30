@@ -7,7 +7,7 @@ namespace EGHeals.Infrastructure.Data.Configurations.Shared.Users
     {
         public void Configure(EntityTypeBuilder<UserRole> builder)
         {
-            builder.ToTable("UsersRoles", "Shared");
+            builder.ToTable("UserRoles", "Shared");
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasConversion(id => id.Value, dbId => UserRoleId.Of(dbId));

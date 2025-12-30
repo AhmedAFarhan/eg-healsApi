@@ -2,7 +2,7 @@
 
 namespace EGHeals.Domain.Models.Shared.Applications
 {
-    public class UserClientApplication : BaseAuditableEntity<UserClientApplicationId>
+    public class UserClientApplication
     {
         public UserClientApplication(UserId userId, ClientApplicationId clientApplicationId)
         {
@@ -11,6 +11,7 @@ namespace EGHeals.Domain.Models.Shared.Applications
             ClientApplicationId = clientApplicationId;
         }
 
+        public UserClientApplicationId Id { get; set; } = default!;
         public UserId UserId { get; set; } = default!;
         public ClientApplicationId ClientApplicationId { get; set; } = default!;
     }

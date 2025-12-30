@@ -39,7 +39,7 @@ namespace EGHeals.Infrastructure.Data.Interceptors
                     entity.Entity.CreatedAt = DateTime.Now;
                 }
 
-                if (entity.State == EntityState.Added || entity.State == EntityState.Modified)
+                if ((entity.State == EntityState.Added || entity.State == EntityState.Modified) && !entity.Entity.IsDeleted)
                 {
                     entity.Entity.LastModifiedBy = userId;
                     entity.Entity.LastModifiedAt = DateTime.Now;

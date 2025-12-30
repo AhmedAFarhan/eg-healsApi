@@ -4,12 +4,12 @@ namespace EGHeals.Domain.Models.RadiologyCenter.Examinations
 {
     public class RadiologyCenter_ExaminationCost : AuditableEntity<RadiologyCenter_ExaminationCostId>
     {
-        public RadiologyCenter_ExaminationId RadiologyExaminationId { get; set; } = default!;
+        public RadiologyCenter_ExaminationId ExaminationId { get; set; } = default!;
         public decimal Cost { get; private set; }
 
-        public RadiologyCenter_Examination RadiologyExamination { get; private set; } = default!; /* NAVIGATION PROPERTY */
+        public RadiologyCenter_Examination Examination { get; private set; } = default!; /* NAVIGATION PROPERTY */
 
-        public static RadiologyCenter_ExaminationCost Create(RadiologyCenter_ExaminationCostId id, RadiologyCenter_ExaminationId radiologyExaminationId, decimal cost)
+        public static RadiologyCenter_ExaminationCost Create(RadiologyCenter_ExaminationCostId id, RadiologyCenter_ExaminationId examinationId, decimal cost)
         {
             //Domain validation
             if (cost < 0)
@@ -20,7 +20,7 @@ namespace EGHeals.Domain.Models.RadiologyCenter.Examinations
             var radiologyExaminationCost = new RadiologyCenter_ExaminationCost
             {
                 Id = id,
-                RadiologyExaminationId = radiologyExaminationId,
+                ExaminationId = examinationId,
                 Cost = cost
             };
 

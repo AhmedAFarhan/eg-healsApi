@@ -17,8 +17,7 @@ namespace EGHeals.Application.Repositories.Users
 
             Task<IdentityResult> CreateAsync(User entity, CancellationToken cancellationToken = default);
             Task<User?> UpdateAsync(User entity, bool includeRoles = false, CancellationToken cancellationToken = default);
-            Task<User?> SoftDeleteAsync(User user, CancellationToken cancellationToken = default);
-            Task<User?> HardDeleteAsync(UserId id, CancellationToken cancellationToken = default);
+            Task<User?> DeleteAsync(UserId id, CancellationToken cancellationToken = default);
             Task<User?> GetByIdAsync(UserId id,
                                     bool includeRoles = false,
                                     CancellationToken cancellationToken = default);

@@ -16,6 +16,7 @@ namespace EGHeals.Application.Extensions.Shared.Users
                 Username: user.UserName,
                 Email: user.Email,
                 PhoneNumber: user.PhoneNumber,
+                IsActive: user.IsActive,
                 Roles: user.UserRoles.Select(role => new UserRoleResponseDto(Id: role.Id.Value, Name: role.Role.Name))
             );
         }
@@ -29,6 +30,7 @@ namespace EGHeals.Application.Extensions.Shared.Users
                 Username: user.UserName,
                 Email: user.Email,
                 PhoneNumber: user.PhoneNumber,
+                IsActive: user.IsActive,
                 Roles: user.UserRoles.Select(role=> new UserRoleResponseDto(Id: role.Id.Value, Name: role.Role.Name))
             ));
         }

@@ -95,25 +95,11 @@ namespace EGHeals.Infrastructure.Repositories.Shared.Users
             return existingUser.ToDomainUser();
         }
 
-        public async Task<User?> SoftDeleteAsync(User user, CancellationToken cancellationToken = default)
-        {
-            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
-
-            if (existingUser is null) return null;
-
-            existingUser.IsDeleted = true;
-
-            dbContext.Users.Update(existingUser);
-
-            return existingUser.ToDomainUser();
-        }
-        public async Task<User?> HardDeleteAsync(UserId id, CancellationToken cancellationToken = default)
+        public async Task<User?> DeleteAsync(UserId id, CancellationToken cancellationToken = default)
         {
             var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
             if (existingUser is null) return null;
-
-            existingUser.IsDeleted = true;
 
             dbContext.Users.Remove(existingUser);
 

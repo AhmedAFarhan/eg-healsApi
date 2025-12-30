@@ -6,33 +6,33 @@ namespace EGHeals.Domain.Models.RadiologyCenter.Examinations
     public class RadiologyCenter_Examination : BaseAuditableEntity<RadiologyCenter_ExaminationId>
     {
         public string Name { get; private set; } = default!;
-        public RadiologyCenetr_Device RadiologyDevice { get; private set; } = default!;
+        public RadiologyCenetr_Device Device { get; private set; } = default!;
         public decimal Cost { get; private set; }
 
-        public static RadiologyCenter_Examination Create(string name, RadiologyCenetr_Device radiologyDevice, decimal cost)
+        public static RadiologyCenter_Examination Create(string name, RadiologyCenetr_Device device, decimal cost)
         {
-            Validation(name, radiologyDevice, cost);
+            Validation(name, device, cost);
 
             var examination = new RadiologyCenter_Examination
             {
                 Id = RadiologyCenter_ExaminationId.Of(Guid.NewGuid()),
                 Name = name,
-                RadiologyDevice = radiologyDevice,
+                Device = device,
                 Cost = cost,
             };
 
             return examination;
         }
-        public void Update(string name, RadiologyCenetr_Device radiologyDevice, decimal cost)
+        public void Update(string name, RadiologyCenetr_Device device, decimal cost)
         {
-            Validation(name, radiologyDevice, cost);
+            Validation(name, device, cost);
 
             Name = name;
-            RadiologyDevice = radiologyDevice;
+            Device = device;
             Cost = cost;
         }
 
-        private static void Validation(string name, RadiologyCenetr_Device radiologyDevice, decimal cost)
+        private static void Validation(string name, RadiologyCenetr_Device device, decimal cost)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
             {
@@ -44,7 +44,7 @@ namespace EGHeals.Domain.Models.RadiologyCenter.Examinations
                 throw new ArgumentOutOfRangeException(nameof(name), name.Length, "Examination name should be in range between 3 and 150 characters.");
             }
 
-            if (!Enum.IsDefined(radiologyDevice))
+            if (!Enum.IsDefined(device))
             {
                 throw new DomainException("Radiology device value is out of range");
             }
